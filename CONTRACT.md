@@ -165,7 +165,7 @@ All additions are new `#` lines or new commands, so v2 tools (logger, old dashbo
 | ONNX file | `models/pemilih.onnx`, opset 17, plus `models/pemilih.onnx.json` metadata (`weights_sha256`, `classes`, `feature_names`, `created_at`, `generator`) |
 | ONNX input | `features`: float32 `[N, 14]` |
 | ONNX outputs | `scores`: float32 `[N, 3]` = `bias + W · ((x − mean) / scale)`; `label`: int64 `[N]` = argmax (0 = `4S`, 1 = `2S2P`, 2 = `TCT`) |
-| `model_id` | `pemilih-logreg-v1@<first 12 hex of sha256(pemilih_bobot.h)>` |
+| `model_id` | `pemilih-logreg-v1@<first 12 hex of weights_sha256>`. `weights_sha256` = sha256 of the 73 weights as little-endian float32, in the order mean (14), scale (14), coef (3×14, row-major), bias (3). Hashing the numbers, not the file, keeps the id stable across line-ending changes |
 | Runtime choice | `SHADESHIFT_EDGE_RUNTIME=auto` uses ONNX Runtime if importable and the metadata hash matches the header, else numpy (logged and labeled `*_numpy`) |
 | Parity (tests must pass) | Same decision as `keputusan_c` on all 38 rows of `referensi_lab_4S.csv`; max \|Δscore\| ≤ 1e-4 vs `port_c.pilih`; lab mean losses 0.82 / 2.71 / 4.30 / 12.0 % reproduced |
 | Latency | `latency_us` = wall time for features + inference on the machine named in `decided_by` |
@@ -190,7 +190,7 @@ All additions are new `#` lines or new commands, so v2 tools (logger, old dashbo
   - Raw command: ≤ 64 printable ASCII chars, no newline.
 - API docs:
   - `GET /openapi.json` is always available.
-  - The interactive `/docs` page is served **without CDN assets**: either vendored files or disabled. FastAPI's default page loads its JavaScript from the internet.
+  - `GET /docs` is a small server-rendered list of endpoints with no JavaScript and no CDN. FastAPI's default page loads its JavaScript from the internet, so it is disabled.
 
 ### 5.2 Ingestion (gateway → server)
 
@@ -219,6 +219,10 @@ All additions are new `#` lines or new commands, so v2 tools (logger, old dashbo
 ```
 
 `complete` is optional. The server stores `complete = sent value AND (header.n is null OR n_points == header.n + 1)`.
+
+More rules:
+- `source` must be `device` or `demo`. Sweeps with `upload` or `lab` are created only by `/uploads` and `/import/lab`, so a client cannot label its data as lab measurements.
+- A `device_decision` (firmware v3) is stored as a decision with `decided_by = "esp32"`, `model_id = "pemilih.h@firmware"` (the ESP32 does not report its weights hash yet), `features = []` and `trigger = "observe"`.
 
 Field notes:
 - `points.v` and `points.i` have equal length (2–5,000) and hold the values as received.
@@ -383,7 +387,8 @@ Shared shapes:
   { "filename": "bad.csv", "status": "rejected", "error": "only 4 valid points (need >= 10)" } ] }
 ```
 
-- A file whose bytes are already stored (same sha256) returns `"status": "duplicate"` with the existing sweep ids.
+- A file whose bytes are already stored (same sha256) returns `"status": "duplicate"` with the existing `sweep_ids`. If that earlier upload was rejected, it returns `"status": "rejected"` with the stored error.
+- The device ids `upload` and `lab` are reserved (kind `virtual`): heartbeats for them get `400`, and so do commands to any virtual device.
 
 **`POST /import/lab`**:
 - Body: `{ "include_anomalies": false }`.
@@ -645,6 +650,7 @@ CREATE TABLE decisions (
   created_at   TEXT NOT NULL
 );
 CREATE INDEX idx_decisions_device_time ON decisions(device_id, created_at);
+CREATE INDEX idx_decisions_sweep ON decisions(sweep_id);
 
 CREATE TABLE evaluations (
   id           INTEGER PRIMARY KEY,
@@ -681,6 +687,7 @@ CREATE TABLE commands (
   done_at      TEXT,
   result       TEXT
 );
+CREATE INDEX idx_commands_device_status ON commands(device_id, status);
 
 CREATE TABLE device_log (
   id           INTEGER PRIMARY KEY,
