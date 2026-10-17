@@ -1,0 +1,17 @@
+# Files restored from the original zip, and the zip snapshot itself, are stored byte-for-byte:
+# no line-ending conversion (Git for Windows defaults to core.autocrlf=true and the originals use CRLF).
+# This keeps raw lab data identical to the measurements and keeps file hashes stable across checkouts.
+/docs/before/** -text
+/SHADESHIFT_ML/** -text
+/firmware/** -text
+/rangkaian/** -text
+/foto/** -text
+/UNTUK_DAUZAN.md -text
+*.csv -text
+
+# Binary artifacts
+*.onnx binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.pt binary

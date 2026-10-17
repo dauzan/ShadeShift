@@ -1,0 +1,35 @@
+# Python and tooling
+.venv/
+.cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Runtime data: database, gateway outbox, caches, exports (CONTRACT §6.5)
+/data/
+
+# Offline wheelhouse (built by scripts/make_wheelhouse.bat; copy it via USB instead)
+/wheels/
+
+# Local configuration (copy .env.example to .env)
+/.env
+
+# The original zip stays on disk but not in git (36 MB); docs/before/ holds its extracted content
+/SHADESHIFT_untuk_Dauzan.zip
+
+# Large simulation CSVs (~75 MB, research only). Restore with: python tools/restore_from_before.py --research-data
+/SHADESHIFT_ML/data/sim_acak.csv
+/SHADESHIFT_ML/data/sim_acak_besar.csv
+/SHADESHIFT_ML/data/sim_grid625.csv
+/SHADESHIFT_ML/data/sim_grid625_besar.csv
+/SHADESHIFT_ML/data/diagnosis_sim.csv
+/SHADESHIFT_ML/data/kembaran/kembaran_acak.csv
+/docs/before/SHADESHIFT_ML/data/sim_acak.csv
+/docs/before/SHADESHIFT_ML/data/sim_acak_besar.csv
+/docs/before/SHADESHIFT_ML/data/sim_grid625.csv
+/docs/before/SHADESHIFT_ML/data/sim_grid625_besar.csv
+/docs/before/SHADESHIFT_ML/data/diagnosis_sim.csv
+/docs/before/SHADESHIFT_ML/data/kembaran/kembaran_acak.csv
+
+# Sweeps saved by the legacy direct-serial dashboard mode (live data now goes to the database)
+/SHADESHIFT_ML/data/data_dasbor/

@@ -1,0 +1,12 @@
+# ShadeShift runtime dependencies, pinned to the versions tested on Python 3.12 / Windows 11.
+# All free and open source. Install into a virtual environment on drive D (team rule):
+#   python -m venv .venv
+#   .venv\Scripts\python -m pip install -r requirements.txt
+streamlit==1.66.0
+altair==6.3.0
+pandas==3.0.6
+numpy==2.5.4
+scipy==1.18.1
+pvlib==0.16.1
+pyserial==3.5
+requests==2.34.2

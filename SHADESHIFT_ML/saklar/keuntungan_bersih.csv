@@ -1,0 +1,4 @@
+skema,rds_mOhm,beban_W,bersih_W
+relai (kumparan terus menyala),,1.783,-0.73
+MOSFET 100 V (kelas IRF540N),44.0,0.441,0.62
+MOSFET 150 V (kelas IRFB4115),11.8,0.239,0.82

@@ -1,0 +1,261 @@
+
+=== hal 1
+ 
+ 
+ 
+ 
+PANDUAN PESERTA 
+DEEPTECH FOR SMART-X HACKATHON: 
+DIGITALISASI & SEMIKONDUKTOR BERBASIS AI ACCELERATOR, CHIP DESIGN, DAN EDGE INTELLIGENCE 
+Latar Belakang 
+DeepTech for Smart-X Hackathon 2026 adalah kompetisi inovasi berbasis kolaborasi riset 
+strategis yang diselenggarakan oleh Institut Teknologi Bandung (ITB) dengan dukungan Kementerian 
+Pendidikan Tinggi, Sains, dan Teknologi. Acara ini lahir untuk menjembatani kesenjangan antara hasil 
+riset di perguruan tinggi dengan kebutuhan spesifik di dunia industri. Dirancang sebagai wadah 
+demand-driven R&D, kompetisi ini menantang para inovator untuk beranjak dari sekadar konsep 
+laboratorium menuju penciptaan purwarupa teknologi fundamental, khususnya kecerdasan buatan 
+(edge AI) dan semikonduktor yang langsung menjawab tantangan nyata dari mitra strategis industri. 
+Setiap tim ditantang untuk merancang purwarupa dengan struktur solusi tiga lapis wajib: (1) 
+lapisan digitalisasi, (2) kecerdasan buatan (edge AI), dan (3) lapisan semikonduktor hemat daya. 
+Inovasi ini nantinya akan didedikasikan untuk memecahkan problem statement dari empat mitra 
+strategis, yaitu PT PLN (Persero), PT Len Industri (Persero), PT Hariff Dipa Persada, dan PT Indismart 
+Kreatif Solusi.  
+Informasi Pelaksanaan 
+Rangkaian kompetisi DeepTech for Smart-X Hackathon 2026 ini mengusung sistem hybrid (daring dan 
+luring) dengan rincian operasional sebagai berikut: 
+●​ Tema Utama: Digitalisasi & Semikonduktor Berbasis AI Accelerator, Chip Design, dan Edge 
+Intelligence. 
+●​ Pelaksanaan Pra-Hackathon (Bootcamp): 
+○​ Tanggal: 15 – 16 Oktober 2026* 
+○​ Tempat: Daring (Online) via Zoom Meeting* 
+●​ Pelaksanaan Acara Puncak (Demo Day): 
+○​ Tanggal: 21 – 23 Oktober 2026 
+○​ Tempat: Luring (Offline) di Institut Teknologi Bandung, Bandung, Ganesha. 
+Topik dan Studi Kasus Mitra Industri (Problem Statement) 
+Kompetisi DeepTech for Smart-X Hackathon 2026 berfokus pada penyelesaian tantangan spesifik dari 
+mitra industri melalui tiga kategori topik utama. Setiap tim peserta diwajibkan memilih dan 
+mengembangkan purwarupa inovasi berdasarkan salah satu ruang lingkup berikut: 
+1.​ Kategori: Smart Meter (Semikonduktor)  
+Fokus pengembangan teknologi semikonduktor untuk mendukung infrastruktur pengukuran 
+pintar (smart meter) nasional. Pilihan sub-topik mencakup: 
+●​ Desain Sirkuit Terpadu (IC Design): Perancangan Analog Front End (AFE) khusus untuk 
+perangkat Smart Meter. 
+●​ Keamanan Perangkat Keras (Hardware Security): Pengembangan akselerasi kriptografi 
+berbasis perangkat keras (hardware cryptographic acceleration). 
+●​ Digitalisasi Sistem: Pengembangan dan integrasi Sistem Informasi Smart Meter. 
+2.​ Kategori: Peningkatan Renewable Energy (Digitalisasi AI & Semikonduktor) 
+Pengembangan sistem konversi dan manajemen cerdas energi terbarukan ntuk 
+mengoptimalkan efisiensi daya pada jaringan. Pilihan sub-topik mencakup:  
+●​ Desain dan/atau prototype smart converter/inverter 
+
+=== hal 2
+ 
+ 
+ 
+ 
+●​ Forecasting Output Solar PV berdasarkan keadaan cuaca 
+●​ Wind power output forecasting  
+●​ Advanced grid management system  
+3.​ Kategori: NFC Detonator (Semikonduktor) 
+Pengembangan sistem detonator nirkabel elektronik lokal berbasis semikonduktor (custom 
+ASICS) guna menekan biaya dan memenuhi TKDN. Pilihan sub-topik mencakup: 
+●​ Konfigurasi Lokal Tanpa Kontak: Perancangan sistem komunikasi front-end Near Field 
+Communication (NFC) pasif. 
+●​ Inisiasi Tegangan yang Disederhanakan: Pengembangan protokol bus digital dua arah 
+yang terintegrasi dengan pemicu ambang batas tegangan bersih. 
+4.​ Kategori: AIoT Smart-X (Digitalisasi AI)​
+Integrasi Kecerdasan Buatan (Artificial Intelligence) dan Internet of Things (IoT) untuk 
+mengoptimalkan ekosistem cerdas terpadu (Smart-X). Pilihan sub-topik mencakup: 
+●​ Smart Farming: Solusi presisi, otomasi, dan analitik berbasis AI untuk sektor pertanian. 
+●​ Smart Industry: Digitalisasi operasional, analitik video cerdas (VIANA), dan digital twin 
+untuk sektor manufaktur. 
+●​ Smart Government: Tata kelola data skala besar (ORION) dan analitik layanan publik 
+untuk institusi pemerintah. 
+Komposisi dan Pembagian Peran Tim 
+Untuk memastikan solusi yang dikembangkan memiliki kelayakan teknis dan komersial yang matang, 
+setiap peserta wajib membentuk tim dengan kriteria keanggotaan dan pembagian peran sebagai 
+berikut: 
+●​ Jumlah dan Unsur Anggota: Komposisi tim terdiri dari 3–4 orang dan dapat berasal dari 
+gabungan unsur: minimal 1 (satu) orang dosen sebagai ketua dan/atau anggota, mahasiswa, 
+serta profesional baik dari perguruan tinggi (PT) maupun industri. 
+●​ Pendekatan Lintas Disiplin: Tim diutamakan berasal dari latar belakang lintas disiplin 
+keilmuan untuk memastikan keseimbangan antara pendekatan teknis, pasar, dan desain. 
+●​ Keterlibatan Mitra (Co-Innovator): Tim yang melibatkan atau mempunyai mitra industri 
+sebagai co-innovator wajib menjelaskan peran mitra tersebut di dalam dokumen pendaftaran 
+(misalnya sebagai pemasok data, penyedia fasilitas uji coba, dan lain-lain). 
+●​ Tingkat Kesiapan Inovasi: Tim diutamakan sudah memiliki prototipe awal yang berada pada 
+Tingkat Kesiapan Teknologi (TKT) 3 hingga 6. 
+Kriteria Peserta 
+Untuk melengkapi komposisi tim, setiap individu yang mendaftar memenuhi kriteria berdasarkan 
+status kepesertaannya: 
+●​ Peserta Dosen: 
+○​ Berstatus dosen tetap (dibuktikan dengan adanya NIDN/NIDK/NUPTK di PDDIKTI). 
+○​ Memiliki latar belakang bidang ilmu yang relevan dengan tema kompetisi. 
+○​ Bersedia menjadi mentor tim selama masa persiapan (bukan sebagai pengganti 
+peran mahasiswa dalam pengembangan prototipe). 
+○​ Dosen dari luar Perguruan Tinggi penyelenggara diperkenankan mengikuti program 
+ini. 
+○​ Tidak berstatus sebagai juri, tim pakar, atau mentor resmi Program Hackathon. 
+
+=== hal 3
+ 
+ 
+ 
+ 
+●​ Peserta Mahasiswa: 
+○​ Mahasiswa aktif dari semua jenjang studi pada perguruan tinggi di Indonesia. 
+○​ Hanya diperbolehkan terdaftar dalam 1 (satu) tim. 
+●​ Peserta Profesional: 
+○​ Merupakan peneliti di luar instansi perguruan tinggi. 
+○​ Profesional yang bekerja di industri, termasuk praktisi startup. 
+Timeline Kegiatan 
+Agar setiap tim dapat merencanakan proses perumusan ide dan pengembangan purwarupa dengan 
+baik, berikut adalah linimasa rangkaian kompetisi mulai dari periode pendaftaran hingga Demo Day: 
+Agenda Kegiatan 
+Waktu Pelaksanaan 
+Periode Pendaftaran 
+25 September - 7 Oktober 2026* 
+Pengumuman Kelolosan Peserta 
+12 Oktober 2026* 
+Bootcamp 1  
+15 Oktober 2026* 
+Bootcamp 2  
+16 Oktober 2026* 
+Hackathon and Demo Day 
+21 - 23 Oktober 2026 
+Instruksi Penting Pra-Acara  
+Untuk memastikan kelancaran partisipasi tim Anda dari tahap pendaftaran hingga pelaksanaan acara 
+puncak, terdapat beberapa pedoman dan instruksi teknis yang wajib diperhatikan. Berikut adalah 
+langkah-langkah penting pra-acara yang perlu dipersiapkan:  
+●​ Siapkan Tim Andalan: Mengingat kompetisi ini untuk tim, pastikan semua anggota tim Anda 
+sudah on the same page, satu frekuensi, dan siap untuk berkolaborasi secara intensif. 
+●​ Pantau Terus Informasi Terbaru: Seluruh pengumuman, pembaruan jadwal, dan aktivitas 
+jelang acara akan dibagikan melalui Instagram resmi, yakni @sccic.id @mentoreverse agar 
+tim Anda tidak ketinggalan informasi penting. 
+●​ Proses Seleksi: Setelah batas pendaftaran berakhir, dokumen proposal tim Anda akan dinilai 
+kelayakannya oleh Tim Reviewer. Tim yang dinyatakan lolos seleksi akan menerima instruksi 
+lanjutan untuk mengikuti bootcamp pra-hackathon menuju hari-H.  
+●​ Akomodasi & Transportasi Acara Puncak: Fasilitas akomodasi dan transportasi peserta lolos 
+seleksi disediakan secara terbatas sesuai ketersediaan anggaran panitia. Peserta yang 
+membutuhkan fasilitas tersebut harap segera melapor agar panitia dapat mengonfirmasi 
+bentuk bantuan yang tersedia. 
+Persyaratan Pendaftaran 
+Seluruh tim diwajibkan melampirkan kelengkapan administrasi dan dokumen teknis berikut saat 
+mendaftar: 
+1.​ Dokumen Identitas: Terdiri dari (1) Daftar Riwayat Hidup ketua dan anggota tim; (2) 
+Portofolio atau sertifikat kompetensi (menjadi nilai tambah jika ada); serta (3) Pakta 
+Integritas yang ditandatangani seluruh anggota, berisi pernyataan orisinalitas karya, belum 
+pernah memenangkan kompetisi lain, dan komitmen mengikuti seluruh rangkaian 
+Hackathon. 
+
+=== hal 4
+ 
+ 
+ 
+ 
+2.​ Bukti Purwarupa: Desain awal atau low fidelity prototype (berupa foto, desain, hasil testing 
+awal, atau hasil gambar 3D). 
+3.​ Proposal Purwarupa Awal: Dokumen maksimal 3 (tiga) halaman A4 yang menjelaskan latar 
+belakang, deskripsi singkat inovasi, rencana kegiatan, komposisi tim, dukungan mitra (jika 
+ada), dan posisi Tingkat Kesiapan Teknologi (TKT). (Ketentuan tata tulis, kerangka dokumen, 
+dan tautan unduhan template dapat dilihat pada sub-bab Format Proposal).  
+Penilaian dokumen pendaftaran mencakup: Kejelasan problem statement, bukti kebutuhan 
+pengguna, kesesuaian kompetensi tim, dan kesiapan awal hilirisasi. 
+Seluruh dokumen pendaftaran wajib disatukan dalam format PDF dan diunggah melalui tautan 
+berikut:  
+🔗Dokumen Pendaftaran DeepTech for Smart-X Hackathon 2026 
+Format Proposal 
+Pengajuan proposal merupakan gerbang awal penyeleksian kompetisi ini. Untuk tahap seleksi awal, 
+seluruh peserta diwajibkan menyusun dan mengunggah dokumen proposal yang berisikan rincian 
+inovasi, identifikasi masalah, Tingkat Kesiapan Teknologi (TKT), roadmap pengembangan, serta Pakta 
+Integritas orisinalitas karya. Dokumen acuan dapat diakses pada tautan berikut:  
+🔗Format Proposal Peserta DeepTech for Smart-X Hackathon 2026 
+Pelaksanaan Lokakarya dan Bimbingan Teknis (Bootcamp Daring) 
+Tim yang dinyatakan lolos seleksi proposal wajib mengikuti tahap pendampingan secara daring 
+(online bootcamp) sebelum acara puncak. Cakupan kegiatan pada tahap ini meliputi: 
+●​ Pemberian materi sekurang-kurangnya terkait studi kelayakan (feasibility study), Business 
+Model Canvas (BMC), lokakarya pengantar untuk penguatan rumusan masalah (problem 
+statement), konsep problem-solution fit, dan jalur hilirisasi. 
+●​ Pelaksanaan klinik pemilik masalah (problem-owner clinic), yaitu sesi konsultasi langsung 
+antara tim peserta dengan mitra industri, pemerintah, atau masyarakat untuk menyamakan 
+persepsi masalah dan ekspektasi luaran solusi. 
+●​ Pendampingan finalisasi sub-tema dan pemilihan tim yang akan berlanjut ke tahap 
+pengembangan purwarupa fisik, dievaluasi berdasarkan kualitas problem statement serta 
+hasil validasi masalah. 
+Rubrik Penilaian 
+Proses penilaian peserta akan dilakukan dalam dua tahap utama. Berikut adalah rincian penilaian 
+untuk masing-masing tahap:  
+A. Tahap Penilaian Proposal (Syarat Lolos Bootcamp)  
+Catatan: Nilai Proposal (NP) minimal untuk lolos adalah 2,80. 
+Kriteria Penilaian 
+Bobot 
+Indikator Utama 
+Inovasi & Kelayakan Desain 
+28% 
+Orisinalitas karya, nilai kebaruan, serta kelogisan 
+wujud arsitektur sistem semikonduktor. 
+Kesesuaian Tema & Kedalaman 
+Teknis 
+22% 
+Keselarasan dengan sub-tema deep tech, kerumitan 
+teknis, dan akurasi penerapan sains. 
+
+=== hal 5
+ 
+ 
+ 
+ 
+Problem-Solution Fit 
+20% 
+Kejelasan rumusan masalah, bukti kebutuhan 
+industri yang valid, dan argumentasi solusi. 
+Rencana Hilirisasi & Potensi 
+Dampak 
+20% 
+Peta jalan komersialisasi (roadmap uji coba/bisnis) 
+dan estimasi dampak ekonomi/sosial. 
+Penguatan TKDN & IP Lokal 
+10% 
+Strategi substitusi impor, rencana komponen lokal, 
+dan pengembangan Kekayaan Intelektual mandiri. 
+B. Tahap Penilaian Demonstrasi / Demo Day (Penentuan Pemenang) 
+Catatan: Nilai Akhir (NA) = 20% Nilai Proposal + 80% Nilai Demo. Tim dengan Nilai Demo di bawah 
+2,80 otomatis tidak direkomendasikan untuk pendanaan karena fungsionalitas teknis bersifat mutlak. 
+Kriteria Penilaian 
+Bobot 
+Indikator Utama 
+Fungsional Prototipe 
+25% 
+Fitur ini dapat didemonstrasikan langsung (live) 
+tanpa bug kritis atau workaround. 
+Problem-Solution Fit 
+20% 
+Solusi terbukti menjawab masalah nyata yang 
+diperkuat oleh data atau testimoni validasi 
+pengguna. 
+Inovasi & Kebaruan 
+15% 
+Pendekatan teknis substantif yang belum ada di 
+pasar (bukan sekadar modifikasi kosmetik). 
+Potensi Dampak & Skalabilitas 
+15% 
+Potensi skala industri dan realisme jalur hilirisasi 
+(scaling bersama mitra konkret). 
+Kesiapan Hilirisasi 
+10% 
+Target TKT 6-8 teridentifikasi jelas beserta 
+milestone lanjutan dan calon mitra pengguna. 
+Keunggulan TKDN & Ekosistem 
+Lokal 
+10% 
+Persentase tinggi untuk komponen IP lokal dan 
+keberpihakan pada ekosistem industri nasional. 
+Kualitas Presentasi 
+5% 
+Alur storytelling (masalah → solusi → demo), 
+manajemen durasi, dan ketuntasan menjawab juri  
+Hadiah Pemenang 
+Program kompetisi ini memberikan apresiasi berupa monetary prize dan dana pembinaan kepada 
+tim-tim dengan solusi dan inovasi terbaik. Hadiah ini dirancang untuk mendukung keberlanjutan 
+pengembangan purwarupa peserta ke tahap selanjutnya.  
+ 

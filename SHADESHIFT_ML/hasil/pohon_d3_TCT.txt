@@ -1,0 +1,48 @@
+### fitur bentuk saja (tanpa skala mutlak) | kelas: ['4S', '2S2P', 'TCT']
+|--- TCT:I@0.8Voc <= 0.56
+|   |--- TCT:FF <= 0.44
+|   |   |--- TCT:I@0.2Voc <= 0.94
+|   |   |   |--- class: 0
+|   |   |--- TCT:I@0.2Voc >  0.94
+|   |   |   |--- class: 0
+|   |--- TCT:FF >  0.44
+|   |   |--- TCT:I@0.8Voc <= 0.30
+|   |   |   |--- class: 0
+|   |   |--- TCT:I@0.8Voc >  0.30
+|   |   |   |--- class: 2
+|--- TCT:I@0.8Voc >  0.56
+|   |--- TCT:P2_Pmax <= 0.66
+|   |   |--- TCT:Vmp_Voc <= 0.73
+|   |   |   |--- class: 2
+|   |   |--- TCT:Vmp_Voc >  0.73
+|   |   |   |--- class: 2
+|   |--- TCT:P2_Pmax >  0.66
+|   |   |--- TCT:P2_Pmax <= 0.71
+|   |   |   |--- class: 2
+|   |   |--- TCT:P2_Pmax >  0.71
+|   |   |   |--- class: 0
+
+### semua fitur | kelas: ['4S', '2S2P', 'TCT']
+|--- TCT:I@0.8Voc <= 0.56
+|   |--- TCT:FF <= 0.44
+|   |   |--- TCT:I@0.2Voc <= 0.94
+|   |   |   |--- class: 0
+|   |   |--- TCT:I@0.2Voc >  0.94
+|   |   |   |--- class: 0
+|   |--- TCT:FF >  0.44
+|   |   |--- TCT:Voc <= 38.77
+|   |   |   |--- class: 0
+|   |   |--- TCT:Voc >  38.77
+|   |   |   |--- class: 2
+|--- TCT:I@0.8Voc >  0.56
+|   |--- TCT:P2_Pmax <= 0.66
+|   |   |--- TCT:Voc <= 38.42
+|   |   |   |--- class: 2
+|   |   |--- TCT:Voc >  38.42
+|   |   |   |--- class: 2
+|   |--- TCT:P2_Pmax >  0.66
+|   |   |--- TCT:P2_Pmax <= 0.71
+|   |   |   |--- class: 2
+|   |   |--- TCT:P2_Pmax >  0.71
+|   |   |   |--- class: 0
+

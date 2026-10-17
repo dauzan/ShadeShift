@@ -1,0 +1,33 @@
+modul,rds_mOhm,topologi,rugi_W,rugi_persen
+kecil (10 W),4.8,4S,0.018,0.045
+kecil (10 W),4.8,2S2P,0.036,0.09
+kecil (10 W),4.8,TCT,0.036,0.09
+kecil (10 W),4.8,4P,0.099,0.248
+kecil (10 W),10.0,4S,0.038,0.094
+kecil (10 W),10.0,2S2P,0.075,0.188
+kecil (10 W),10.0,TCT,0.075,0.188
+kecil (10 W),10.0,4P,0.207,0.517
+kecil (10 W),20.0,4S,0.075,0.188
+kecil (10 W),20.0,2S2P,0.151,0.376
+kecil (10 W),20.0,TCT,0.151,0.376
+kecil (10 W),20.0,4P,0.414,1.035
+kecil (10 W),44.0,4S,0.166,0.414
+kecil (10 W),44.0,2S2P,0.331,0.828
+kecil (10 W),44.0,TCT,0.331,0.828
+kecil (10 W),44.0,4P,0.911,2.277
+"besar (~415 W, sintetis)",4.8,4S,7.486,0.451
+"besar (~415 W, sintetis)",4.8,2S2P,14.971,0.902
+"besar (~415 W, sintetis)",4.8,TCT,14.971,0.902
+"besar (~415 W, sintetis)",4.8,4P,41.171,2.48
+"besar (~415 W, sintetis)",10.0,4S,15.595,0.939
+"besar (~415 W, sintetis)",10.0,2S2P,31.19,1.879
+"besar (~415 W, sintetis)",10.0,TCT,31.19,1.879
+"besar (~415 W, sintetis)",10.0,4P,85.774,5.167
+"besar (~415 W, sintetis)",20.0,4S,31.19,1.879
+"besar (~415 W, sintetis)",20.0,2S2P,62.381,3.758
+"besar (~415 W, sintetis)",20.0,TCT,62.381,3.758
+"besar (~415 W, sintetis)",20.0,4P,171.547,10.334
+"besar (~415 W, sintetis)",44.0,4S,68.619,4.134
+"besar (~415 W, sintetis)",44.0,2S2P,137.238,8.267
+"besar (~415 W, sintetis)",44.0,TCT,137.238,8.267
+"besar (~415 W, sintetis)",44.0,4P,377.404,22.735

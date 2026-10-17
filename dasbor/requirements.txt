@@ -1,0 +1,2 @@
+# The pinned dependency list lives in the project root.
+-r ../requirements.txt

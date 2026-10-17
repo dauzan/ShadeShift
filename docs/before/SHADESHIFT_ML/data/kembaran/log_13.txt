@@ -1,0 +1,7 @@
+kelas 0 35 s
+kelas 1 70 s
+kelas 2 106 s
+kelas 3 142 s
+kelas 4 168 s
+kelas 5 202 s
+tersimpan data/kembaran/acak_13.csv 3000

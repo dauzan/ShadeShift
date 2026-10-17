@@ -1,0 +1,21 @@
+modul,saklar,simpul,tegangan_blokir_V,arus_maks_A
+kecil (10 W),S1,Am-Bp,25.0,0.62
+kecil (10 W),S2,Bm-N,50.0,0.62
+kecil (10 W),S3,Cp-P,50.0,0.62
+kecil (10 W),S4,Cm-Dp,25.0,0.62
+kecil (10 W),S5,Bm-Cp,50.0,0.62
+kecil (10 W),S6,Bp-Dp,50.0,0.19
+kecil (10 W),S7,Am-N,74.9,0.62
+kecil (10 W),S8,Bp-P,25.0,0.62
+kecil (10 W),S9,Cm-N,25.0,0.62
+kecil (10 W),S10,Dp-P,74.9,0.62
+"besar (~415 W, sintetis)",S1,Am-Bp,50.0,12.5
+"besar (~415 W, sintetis)",S2,Bm-N,99.9,12.5
+"besar (~415 W, sintetis)",S3,Cp-P,99.9,12.5
+"besar (~415 W, sintetis)",S4,Cm-Dp,50.0,12.5
+"besar (~415 W, sintetis)",S5,Bm-Cp,99.9,12.5
+"besar (~415 W, sintetis)",S6,Bp-Dp,99.9,3.75
+"besar (~415 W, sintetis)",S7,Am-N,149.9,12.5
+"besar (~415 W, sintetis)",S8,Bp-P,50.0,12.5
+"besar (~415 W, sintetis)",S9,Cm-N,50.0,12.5
+"besar (~415 W, sintetis)",S10,Dp-P,149.9,12.5

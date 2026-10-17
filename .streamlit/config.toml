@@ -1,0 +1,14 @@
+# Offline, no-cloud settings for the ShadeShift dashboard (ANALYSIS B4).
+# Streamlit reads this file from the folder it is started in, so start it from the project root.
+
+[browser]
+# No usage-statistics telemetry.
+gatherUsageStats = false
+
+[client]
+# Hides developer options and the "Deploy" (Streamlit Community Cloud) button.
+toolbarMode = "viewer"
+
+[server]
+# No automatic browser opening and no first-run email prompt.
+headless = true
