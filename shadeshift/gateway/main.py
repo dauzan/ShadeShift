@@ -392,4 +392,8 @@ class Gateway:
 def main(settings=None, source=None, port=None, device_id=None, standby=False):
     settings = settings or cfg.load()
     logging.basicConfig(level=settings.log_level, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-    Gateway(settings, source=source, port=port, device_id=device_id, standby=standby).run()
+    try:
+        Gateway(settings, source=source, port=port, device_id=device_id, standby=standby).run()
+    except (RuntimeError, OSError) as e:          # no ESP32 found, port busy or denied
+        log.error("gateway cannot start: %s", e)
+        raise SystemExit(2) from None

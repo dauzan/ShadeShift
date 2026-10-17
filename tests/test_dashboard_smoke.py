@@ -25,12 +25,13 @@ def test_offline_streamlit_config():
     assert cfg["server"]["headless"] is True
 
 
-def test_app_script_runs_without_exceptions():
-    # Runs dasbor/app.py in-process, including the digital-twin computation at the top of the script.
-    at = AppTest.from_file(str(ROOT / "dasbor" / "app.py"), default_timeout=180)
+def test_app_without_server_explains_how_to_start(monkeypatch):
+    # The dashboard is an API client: with no server it must say how to start one, not crash.
+    monkeypatch.setenv("SHADESHIFT_API_URL", f"http://127.0.0.1:{_free_port()}")
+    at = AppTest.from_file(str(ROOT / "dasbor" / "app.py"), default_timeout=60)
     at.run()
     assert not at.exception, at.exception
-    assert any("TIRUAN" in info.value for info in at.info)
+    assert any("run.py demo" in e.value for e in at.error)
 
 
 def test_streamlit_server_starts_and_serves(tmp_path):

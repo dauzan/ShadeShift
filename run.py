@@ -1,5 +1,9 @@
 """ShadeShift launcher: one entry point for every part of the local system (CONTRACT.md §1.1).
 
+    python run.py demo          everything without hardware: server + emulated ESP32 + dashboard, opens the browser
+    python run.py live          everything with the ESP32 on USB (port auto-detected; --port COM5 overrides),
+                                plus a standby demo device to switch to if the hardware fails
+    python run.py dashboard     only the dashboard (http://127.0.0.1:8501)
     python run.py server        local API + SQLite on 127.0.0.1:8000 (Ctrl+C to stop)
     python run.py gateway --source serial [--port COM5]   edge gateway for the real ESP32 (port auto-detected)
     python run.py gateway --source demo                   edge gateway with the emulated ESP32 (replays lab curves)
@@ -8,14 +12,18 @@
     python run.py ports         list serial ports (to find the ESP32)
     python run.py test          run all tests
 
-Run it with the project's virtual environment, e.g.  .venv\\Scripts\\python run.py server
-Later stages add: gateway, dashboard, demo, live.
+Run it with the project's virtual environment, e.g.  .venv\\Scripts\\python run.py demo
+Stop with Ctrl+C in the same window: the gateways open all relays first. Closing the window skips that step.
 """
 import argparse
 import importlib
+import signal
 import socket
 import subprocess
 import sys
+import time
+import urllib.request
+import webbrowser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -32,7 +40,124 @@ def cmd_server(settings, args):
 def cmd_gateway(settings, args):
     from shadeshift.gateway.main import main
     main(settings.with_overrides(source=args.source, serial_port=args.port, edge_runtime=args.runtime),
-         source=args.source, port=args.port, device_id=args.device_id)
+         source=args.source, port=args.port, device_id=args.device_id, standby=args.standby)
+
+
+DASHBOARD_HOST = "127.0.0.1"          # never exposed on the network: the dashboard can switch relays
+
+
+def dashboard_command(settings):
+    return [sys.executable, "-m", "streamlit", "run", str(ROOT / "dasbor" / "app.py"),
+            "--server.address", DASHBOARD_HOST, "--server.port", str(settings.dashboard_port),
+            "--server.headless", "true", "--server.showEmailPrompt", "false",
+            "--browser.gatherUsageStats", "false", "--client.toolbarMode", "viewer"]
+
+
+def cmd_dashboard(settings, args):
+    return subprocess.call(dashboard_command(settings), cwd=ROOT)
+
+
+def _wait_http(url, timeout, procs=()):
+    end = time.time() + timeout
+    while time.time() < end:
+        if any(p.poll() is not None for p in procs):
+            return False
+        try:
+            with urllib.request.urlopen(url, timeout=2):
+                return True
+        except OSError:
+            time.sleep(0.5)
+    return False
+
+
+WINDOWS = sys.platform == "win32"
+# Server and dashboard get their own process group: Ctrl+C does not reach them, so the launcher can stop them
+# AFTER the gateways have opened the relays and sent their last data. Gateways stay in this group and get Ctrl+C.
+OWN_GROUP = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if WINDOWS else {"start_new_session": True}
+
+
+def _soft_stop(p):
+    """Ask a child in its own process group to shut down cleanly (CTRL_BREAK on Windows, SIGINT elsewhere)."""
+    try:
+        p.send_signal(signal.CTRL_BREAK_EVENT if WINDOWS else signal.SIGINT)
+    except (OSError, ValueError):
+        pass
+
+
+def _start_all(settings, serial_port=None, live=False, open_browser=True):
+    """Start server, gateway(s) and dashboard as child processes in this console; supervise until Ctrl+C."""
+    for name, port in (("API", settings.api_port), ("dashboard", settings.dashboard_port)):
+        if not _port_free("127.0.0.1", port):
+            sys.exit(f"Port {port} ({name}) is in use: ShadeShift may already be running in another window. "
+                     "Close it, or change the port in .env.")
+    me = [sys.executable, str(ROOT / "run.py")]
+    procs = {}
+    try:
+        print("Starting the local server ...")
+        procs["server"] = subprocess.Popen(me + ["server"], cwd=ROOT, **OWN_GROUP)
+        if not _wait_http(f"{settings.api_url}/api/v1/health", 60, [procs["server"]]):
+            raise RuntimeError("the server did not start; see the messages above")
+        import requests
+        headers = {"X-ShadeShift-Token": settings.api_token} if settings.api_token else {}
+        if not requests.get(f"{settings.api_url}/api/v1/conditions", params={"source": "lab"}, timeout=10).json():
+            print("Importing the 120 lab curves into the database (read-only, once) ...")
+            requests.post(f"{settings.api_url}/api/v1/import/lab", json={}, headers=headers, timeout=300)
+        if live:
+            cmd = me + ["gateway", "--source", "serial"] + (["--port", serial_port] if serial_port else [])
+            procs["gateway-esp32"] = subprocess.Popen(cmd, cwd=ROOT)
+            procs["gateway-demo"] = subprocess.Popen(me + ["gateway", "--source", "demo", "--standby"], cwd=ROOT)
+        else:
+            procs["gateway-demo"] = subprocess.Popen(me + ["gateway", "--source", "demo"], cwd=ROOT)
+        procs["dashboard"] = subprocess.Popen(dashboard_command(settings), cwd=ROOT, **OWN_GROUP)
+        url = f"http://{DASHBOARD_HOST}:{settings.dashboard_port}"
+        if _wait_http(url + "/_stcore/health", 90, [procs["dashboard"]]) and open_browser:
+            webbrowser.open(url)
+        print(f"\nShadeShift is running. Dashboard: {url}   API: {settings.api_url}/docs")
+        print("Press Ctrl+C in this window to stop everything (relays are opened first).\n")
+        warned = set()
+        while True:
+            time.sleep(0.5)
+            for name, p in procs.items():
+                if p.poll() is not None and name not in warned:
+                    warned.add(name)
+                    if name == "gateway-esp32":
+                        print("\n!! The ESP32 gateway stopped (see the message above). The demo device keeps running: "
+                              "pick 'demo-01' on the dashboard, or fix the USB connection and run "
+                              "'run.py gateway --source serial' in another window.\n")
+                    elif name in ("server", "dashboard"):
+                        raise RuntimeError(f"the {name} stopped unexpectedly")
+    except KeyboardInterrupt:
+        print("\nStopping ShadeShift ... (gateways open all relays first)")
+    except RuntimeError as e:
+        print(f"\nShadeShift cannot continue: {e}")
+    finally:
+        # 1) Gateways got the same Ctrl+C: they open the relays, flush their data to the still-running server, end the run.
+        # 2) Then the dashboard and the server are asked to stop. 3) Anything still alive after 20 s is terminated.
+        for group, ask in ((["gateway-esp32", "gateway-demo"], False), (["dashboard", "server"], True)):
+            if ask:
+                for name in group:
+                    if procs.get(name) is not None and procs[name].poll() is None:
+                        _soft_stop(procs[name])
+            end = time.time() + 20
+            for name in group:
+                p = procs.get(name)
+                while p is not None and p.poll() is None and time.time() < end:
+                    try:
+                        time.sleep(0.25)
+                    except KeyboardInterrupt:
+                        pass
+                if p is not None and p.poll() is None:
+                    print(f"  {name} did not stop in time; terminating it")
+                    p.terminate()
+        print("Stopped.")
+
+
+def cmd_demo(settings, args):
+    _start_all(settings, live=False, open_browser=not args.no_browser)
+
+
+def cmd_live(settings, args):
+    _start_all(settings, serial_port=args.port, live=True, open_browser=not args.no_browser)
 
 
 def cmd_import_lab(settings, args):
@@ -120,6 +245,12 @@ def cmd_test(settings, args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
+    p = sub.add_parser("demo", help="server + emulated ESP32 + dashboard (no hardware)")
+    p.add_argument("--no-browser", action="store_true")
+    p = sub.add_parser("live", help="server + real ESP32 gateway + standby demo + dashboard")
+    p.add_argument("--port", default=None, help="serial port, e.g. COM5 (default: auto-detect the ESP32)")
+    p.add_argument("--no-browser", action="store_true")
+    sub.add_parser("dashboard", help="run only the dashboard")
     p = sub.add_parser("server", help="run the local API server")
     p.add_argument("--host", default=None)
     p.add_argument("--port", type=int, default=None)
@@ -128,6 +259,7 @@ def main():
     p.add_argument("--port", default=None, help="serial port, e.g. COM5 (default: auto-detect the ESP32)")
     p.add_argument("--device-id", default=None)
     p.add_argument("--runtime", choices=["auto", "onnx", "numpy"], default=None, help="edge AI runtime")
+    p.add_argument("--standby", action="store_true", help="demo device waiting as a backup (used by run.py live)")
     p = sub.add_parser("import-lab", help="import lab curves into the database")
     p.add_argument("--include-anomalies", action="store_true", help="also import the V5 and V1d folders")
     sub.add_parser("check", help="check this laptop")
@@ -135,9 +267,17 @@ def main():
     p = sub.add_parser("test", help="run the tests")
     p.add_argument("pytest_args", nargs=argparse.REMAINDER)
     args = ap.parse_args()
+    sys.stdout.reconfigure(line_buffering=True)          # status lines appear immediately, also when redirected
+    if WINDOWS:
+        # CTRL_BREAK (launcher shutdown) and closing the console window arrive as SIGBREAK: treat them like Ctrl+C,
+        # so a gateway still opens the relays first.
+        def _as_ctrl_c(*_):
+            raise KeyboardInterrupt
+        signal.signal(signal.SIGBREAK, _as_ctrl_c)
     settings = config.load()
-    handler = {"server": cmd_server, "gateway": cmd_gateway, "import-lab": cmd_import_lab, "check": cmd_check,
-               "ports": cmd_ports, "test": cmd_test}[args.cmd]
+    handler = {"demo": cmd_demo, "live": cmd_live, "dashboard": cmd_dashboard, "server": cmd_server,
+               "gateway": cmd_gateway, "import-lab": cmd_import_lab, "check": cmd_check, "ports": cmd_ports,
+               "test": cmd_test}[args.cmd]
     sys.exit(handler(settings, args) or 0)
 
 
