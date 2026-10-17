@@ -1,6 +1,8 @@
 """ShadeShift launcher: one entry point for every part of the local system (CONTRACT.md §1.1).
 
     python run.py server        local API + SQLite on 127.0.0.1:8000 (Ctrl+C to stop)
+    python run.py gateway --source serial [--port COM5]   edge gateway for the real ESP32 (port auto-detected)
+    python run.py gateway --source demo                   edge gateway with the emulated ESP32 (replays lab curves)
     python run.py import-lab    import the halogen-lamp lab curves into the database (server must be running)
     python run.py check         check this laptop: Python, packages, ports, lab data, model, digital twin
     python run.py ports         list serial ports (to find the ESP32)
@@ -25,6 +27,12 @@ from shadeshift import __version__, config  # noqa: E402
 def cmd_server(settings, args):
     from shadeshift.server.app import main
     main(settings.with_overrides(host=args.host, api_port=args.port))
+
+
+def cmd_gateway(settings, args):
+    from shadeshift.gateway.main import main
+    main(settings.with_overrides(source=args.source, serial_port=args.port, edge_runtime=args.runtime),
+         source=args.source, port=args.port, device_id=args.device_id)
 
 
 def cmd_import_lab(settings, args):
@@ -115,6 +123,11 @@ def main():
     p = sub.add_parser("server", help="run the local API server")
     p.add_argument("--host", default=None)
     p.add_argument("--port", type=int, default=None)
+    p = sub.add_parser("gateway", help="run the edge gateway (serial ESP32 or emulated demo device)")
+    p.add_argument("--source", choices=["serial", "demo"], default=None)
+    p.add_argument("--port", default=None, help="serial port, e.g. COM5 (default: auto-detect the ESP32)")
+    p.add_argument("--device-id", default=None)
+    p.add_argument("--runtime", choices=["auto", "onnx", "numpy"], default=None, help="edge AI runtime")
     p = sub.add_parser("import-lab", help="import lab curves into the database")
     p.add_argument("--include-anomalies", action="store_true", help="also import the V5 and V1d folders")
     sub.add_parser("check", help="check this laptop")
@@ -123,8 +136,8 @@ def main():
     p.add_argument("pytest_args", nargs=argparse.REMAINDER)
     args = ap.parse_args()
     settings = config.load()
-    handler = {"server": cmd_server, "import-lab": cmd_import_lab, "check": cmd_check, "ports": cmd_ports,
-               "test": cmd_test}[args.cmd]
+    handler = {"server": cmd_server, "gateway": cmd_gateway, "import-lab": cmd_import_lab, "check": cmd_check,
+               "ports": cmd_ports, "test": cmd_test}[args.cmd]
     sys.exit(handler(settings, args) or 0)
 
 

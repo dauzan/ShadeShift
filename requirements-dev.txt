@@ -1,3 +1,5 @@
 # Development and test dependencies (runtime ones come from requirements.txt).
 -r requirements.txt
 pytest==9.1.1
+httpx==0.28.1          # used by FastAPI's TestClient
+onnx==1.23.2           # only to regenerate models/pemilih.onnx: python -m shadeshift.edge.export_onnx

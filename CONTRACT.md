@@ -288,7 +288,7 @@ Responses:
   "run_uuid": "0b5e…",
   "gateway": { "version": "0.1.0", "edge_runtime": "onnxruntime 1.31.0", "model_id": "pemilih-logreg-v1@3fa2c1d09b7e" },
   "state": { "connected": true, "active_topology": "TCT", "task": null,
-             "auto_mode": { "on": false, "interval_s": 10, "trigger_pct": 20, "hold_s": 30, "stability": { "enabled": true, "window_s": 30, "cv_pct": 10 } },
+             "auto_mode": { "on": false, "interval_s": 10, "trigger_pct": 20, "hold_s": 30, "stability": { "enabled": false, "window_s": 30, "cv_pct": 10 } },
              "demo": null, "last_error": null } }
 ```
 
@@ -309,9 +309,10 @@ Responses:
 Response: `202 { "id": 7, "status": "queued" }`. Unknown actions → `400`.
 
 **Raw-command allowlist (safety).** The server accepts only these raw firmware commands from the API:
-`4S`, `2S2P`, `TCT`, `4P`, `OFF`, `STOP`, `SWEEP <label>`, `STATUS`, `VOC`, `PANTAU 0/1`, `VPANEL <V>`, `CEKVOC 1`, `KAL`, `SCAN`, `BANTUAN`, `INFO`, `TAHAN 0/1`.
+`4S`, `2S2P`, `TCT`, `4P`, `OFF`, `STOP`, `SWEEP <label>`, `STATUS`, `VOC`, `PANTAU 0/1`, `VPANEL <V>`, `CEKVOC 1`, `KAL`, `SCAN`, `BANTUAN`, `INFO`, `TAHAN 0`.
 
 These are **rejected with `400`**:
+- `TAHAN 1` — holds the MOSFET at the MPP, the same heat hazard as `DAC`; only gateway logic may use it, after a heat check on hardware;
 - `RELAI`, `UJIRELAI` — the firmware docs say "only without panels", and the firmware accepts them whenever no topology is active;
 - `DAC` — unguarded MOSFET drive, even with R0 closed;
 - `CEKVOC 0` — disables the Voc safety check;
@@ -331,11 +332,21 @@ Use the blocked commands only from the Arduino Serial Monitor during bench work,
 | `demo_scenario_start` | `name`, `speed` | Demo device only: play `scenarios/<name>.json` |
 | `demo_scenario_stop` | — | Demo device only |
 
+**Stop semantics (safety).**
+- `stop`, `auto_mode_stop`, raw `OFF` and raw `STOP` all take one path in the gateway. It sets a stop latch so a running task can send nothing more, writes `OFF`, and waits up to 10 s for `# semua relai terbuka`.
+- The result is `done` ("all relays open") only after that confirmation, otherwise `failed` ("OFF not confirmed by device").
+- The firmware finishes the step it is in first; a sweep can take ~3–4 s. A sweep that completes after a stop is never used for a decision.
+- The latch is released only when the user starts a new task.
+- While a task runs, raw relay-moving commands (topologies, `SWEEP`, `VPANEL`, `CEKVOC`, `TAHAN`) and other actions fail with `busy: <task>`.
+- `POST /stop_all` queues `stop` for every live device; the dashboard's Stop button uses it. Response `202 { "queued": [ { "device_id", "id" } ] }`.
+- Stop needs the server and the gateway running. To cut power without software, unplug the 12 V adaptor (all relay coils).
+
 **`GET /devices/{device_id}/commands/next?wait=5`** (gateway long-poll):
 - returns `200 { "commands": [ { "id": 7, "kind": "action", "command": "auto_select", "params": {}, "created_at": "…" } ] }`;
 - marks them `sent`;
 - answers with an empty list after `wait` seconds;
-- queued commands older than 60 s become `expired`;
+- if a stop is queued, it is returned first, and relay-moving commands queued with it become `failed` ("superseded by stop");
+- a queued stop never expires; queued relay-moving commands expire after 10 s; other queued commands after 60 s;
 - `sent` commands with no result after 120 s become `failed` with result `"no result from gateway"`, so a crashed gateway never leaves a command hanging. Commands are never re-delivered automatically, because re-sending a relay switch is not safe to repeat blindly.
 
 **`POST /commands/{id}/result`**: body `{ "status": "done", "result": "TCT" }`, where `status` is `done` or `failed`. Response: `200`.
@@ -404,7 +415,7 @@ Shared shapes:
 | `GET /twin/expected?scale=1.0&shading=none` | `{ "available": true, "scale": 1.0, "shading": "none", "pmax": { "4S": 1.043, "2S2P": 1.050, "TCT": 1.051, "4P": 1.053 }, "label": "simulation: lab-lamp twin, ~8 % power error on 7 lab conditions" }`. `503` with a reason if pvlib or the twin files are missing |
 | `GET /twin/curve?topology=TCT&voc_max=36.6&scale=1.0&shading=none` | `{ "v": [...250], "i": [...250] }` |
 | `POST /twin/calibrate` | Body `{ "sweep_id": 42 }`. Response `{ "scale": 1.02 }`, also saved to settings. Only valid on an **unshaded** sweep; the UI says so |
-| `GET /settings`, `PUT /settings` | `{ "twin_scale": 1.0, "twin_shading": "none", "alert_threshold_pct": 15, "auto_mode_defaults": { "interval_s": 10, "trigger_pct": 20, "hold_s": 30, "stability": { "enabled": true, "window_s": 30, "cv_pct": 10 } } }` |
+| `GET /settings`, `PUT /settings` | `{ "twin_scale": 1.0, "twin_shading": "none", "alert_threshold_pct": 15, "auto_mode_defaults": { "interval_s": 10, "trigger_pct": 20, "hold_s": 30, "stability": { "enabled": false, "window_s": 30, "cv_pct": 10 } } }`. The stability rule is off by default because it is not validated (§7) |
 
 `shading` values:
 
@@ -485,7 +496,7 @@ If that line is missing, the topology comes from the file name pattern `<conditi
   "description": "Clear, then shade net on A, diagonal A+D, A+B, clear again; auto mode on",
   "label": "DEMO: replays real lab curves (halogen lamp); timing delays are estimates",
   "timing": { "switch_s": 0.6, "sweep_s": 1.5 },
-  "auto_mode": { "interval_s": 10, "trigger_pct": 20, "hold_s": 30, "stability": { "enabled": true, "window_s": 30, "cv_pct": 10 } },
+  "auto_mode": { "interval_s": 10, "trigger_pct": 20, "hold_s": 30, "stability": { "enabled": false, "window_s": 30, "cv_pct": 10 } },
   "timeline": [
     { "at_s": 0,   "condition": "V1c",          "note": "no shading" },
     { "at_s": 40,  "condition": "V3_paranet65", "note": "shade net on module A" },

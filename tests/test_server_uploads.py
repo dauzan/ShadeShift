@@ -25,7 +25,7 @@ def test_samples_accepted_and_rejected(tmp_path):
                       "bad_too_few_points.csv", "bad_non_numeric.csv")
         assert res["V3_opak_4S_u1.csv"]["status"] == "ok"
         s = res["V3_opak_4S_u1.csv"]["sweeps"][0]
-        assert s["topology"] == "4S" and s["decision"]["decided_by"] == "server_numpy"
+        assert s["topology"] == "4S" and s["decision"]["decided_by"] in ("server_onnx", "server_numpy")
         assert s["decision"]["choice"] == inti.pilih_susunan(inti.baca_berkas(str(LAB / "V3_opak_4S_u1.csv")), inti.muat_bobot())[0]
         amps, milli = res["V1c_TCT_u1_plain.csv"]["sweeps"][0], res["V1c_TCT_u1_plain_mA.csv"]["sweeps"][0]
         assert amps["topology"] == milli["topology"] == "TCT"

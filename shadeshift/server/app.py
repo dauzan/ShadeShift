@@ -32,11 +32,23 @@ log = logging.getLogger("shadeshift.server")
 API = "/api/v1"
 UUID_NS = uuidlib.UUID("6a3f1d2e-9b8c-4c1a-8e7f-2d4b5c6a7e80")     # deterministic ids for uploads and lab imports
 RESERVED_DEVICES = {"upload": "virtual", "lab": "virtual"}
-QUEUED_TTL_S, SENT_TTL_S, RUN_IDLE_S, LOG_KEEP = 60, 120, 60, 5000
+KIND_SOURCE = {"esp32": "device", "emulator": "demo"}         # provenance follows the device kind (CONTRACT §5.2)
+ACTUATING_TTL_S, OTHER_TTL_S, SENT_TTL_S, RUN_IDLE_S, LOG_KEEP = 10, 60, 120, 60, 5000
+SELECTOR_MAX_POINTS, UPLOAD_MAX_POINTS = 1000, 250_000
 MODEL_CLAIMS = {
-    "lab": "loss 0.82 % vs 2.71 % for the best fixed topology (2S2P), among 4S/2S2P/TCT; 30 halogen-lamp sets, 6 patterns",
-    "sim": "3.00 vs 6.35 points of ideal-MLPE power (fixed TCT); accuracy 68.9 %, balanced 47.5 % (simulation)",
+    "lab": "lab (halogen lamp, 30 sets, 6 patterns): selector loss 0.82 % vs 2.71 % for the best fixed topology (2S2P), "
+           "among 4S/2S2P/TCT; 4P is excluded by the 24 V window (it measured highest in all 30 lab sets)",
+    "sim": "sim (12,000 synthetic scenarios): 3.00 vs 6.35 points of ideal-MLPE power for fixed TCT; "
+           "accuracy 68.9 %, balanced accuracy 47.5 %",
+    "trigger_rule": "sim (synthetic scenarios): trigger-20 % beats fixed TCT on average per shading type but is worse "
+                    "in 10 of 12 leaf, 5 of 12 moving and 6 of 12 mixed scenarios",
+    "edge": "L2: the selector runs on the laptop gateway next to the device (ONNX Runtime); on the ESP32 it is a "
+            "Foundation (firmware v3, not yet run on the board)",
 }
+
+
+def source_of_kind(kind):
+    return KIND_SOURCE.get(kind, "server")
 SWEEP_COLS = ("id, uuid, device_id, run_id, upload_id, source, label, topology, condition, repeat, captured_at, "
               "received_at, n_points, complete, voc, isc, pmax, vmp, imp, sweep_ms, switch_ms, replay_of")
 
@@ -56,7 +68,7 @@ class Core:
         self.settings = settings
         self.db = Database(settings.db_path)
         self.twin = Twin()
-        self.selector = EdgeSelector(role="server")
+        self.selector = EdgeSelector(role="server", runtime=settings.edge_runtime, model_path=settings.model_path)
         self.hub = Hub()
         self._cmd_cond = threading.Condition()
         self._stop = threading.Event()
@@ -82,7 +94,14 @@ class Core:
         d["state"] = state.get("state", {})
         d["gateway"] = state.get("gateway", {})
         d["online"] = d["kind"] != "virtual" and _iso_age_s(d["last_seen"]) <= self.settings.online_timeout_s
+        d["source"] = source_of_kind(d["kind"])
         return d
+
+    def device_kind(self, con, device_id):
+        r = con.execute("SELECT kind FROM devices WHERE id=?", (device_id,)).fetchone()
+        if not r:
+            raise HTTPException(404, f"unknown device {device_id!r}: send a heartbeat first")
+        return r["kind"]
 
     def expected(self):
         if not self.twin.available:
@@ -123,8 +142,9 @@ class Core:
     def add_event(self, con, device_id, kind, message, data=None, created_at=None):
         con.execute("INSERT INTO events(device_id, kind, message, data_json, created_at) VALUES (?,?,?,?,?)",
                     (device_id, kind, message, dumps(data or {}), created_at or utc_now()))
+        dk = con.execute("SELECT kind FROM devices WHERE id=?", (device_id,)).fetchone() if device_id else None
         return {"device_id": device_id, "kind": kind, "message": message, "data": data or {},
-                "created_at": created_at or utc_now()}
+                "created_at": created_at or utc_now(), "source": source_of_kind(dk["kind"] if dk else None)}
 
     # ---------- storing sweeps (shared by ingest, uploads, lab import) ----------
     def store_sweep(self, con, *, uuid, device_id, run_id, upload_id, source, label, topology, condition, repeat,
@@ -162,9 +182,11 @@ class Core:
     def maintain(self):
         now = utc_now()
         with self.db.tx() as con:
-            for c in con.execute("SELECT id, device_id, status, created_at, sent_at FROM commands "
+            for c in con.execute("SELECT id, device_id, kind, command, status, created_at, sent_at FROM commands "
                                  "WHERE status IN ('queued','sent')").fetchall():
-                if c["status"] == "queued" and _iso_age_s(c["created_at"]) > QUEUED_TTL_S:
+                ttl = ACTUATING_TTL_S if commands.is_actuating(c["kind"], c["command"]) else OTHER_TTL_S
+                queued_stop = c["status"] == "queued" and commands.is_stop(c["kind"], c["command"])   # never expires
+                if c["status"] == "queued" and not queued_stop and _iso_age_s(c["created_at"]) > ttl:
                     con.execute("UPDATE commands SET status='expired', done_at=? WHERE id=?", (now, c["id"]))
                     self.hub.publish("command", {"id": c["id"], "status": "expired", "result": None}, c["device_id"])
                 elif c["status"] == "sent" and _iso_age_s(c["sent_at"]) > SENT_TTL_S:
@@ -496,6 +518,21 @@ def create_app(settings=None):
         core.hub.publish("event", ev, device_id)
         return {"id": cid, "status": "queued", "command": command}
 
+    @app.post(API + "/stop_all", status_code=202, dependencies=write)
+    def stop_all():
+        """Queue 'stop' for every live (non-virtual) device: cancels running tasks and opens all relays."""
+        queued = []
+        with db.tx() as con:
+            for d in con.execute("SELECT id FROM devices WHERE kind != 'virtual' ORDER BY id").fetchall():
+                cur = con.execute("INSERT INTO commands(device_id, kind, command, params_json, status, created_at) "
+                                  "VALUES (?,?,?,?,?,?)", (d["id"], "action", "stop", "{}", "queued", utc_now()))
+                core.add_event(con, d["id"], "command", "queued action: stop (stop all)", {"command_id": cur.lastrowid})
+                queued.append({"device_id": d["id"], "id": cur.lastrowid})
+        core.wake_commands()
+        for q in queued:
+            core.hub.publish("command", {"id": q["id"], "status": "queued", "result": None, "command": "stop"}, q["device_id"])
+        return {"queued": queued}
+
     @app.get(API + "/devices/{device_id}/commands/next", dependencies=write)
     def next_commands(device_id: str, wait: float = Query(5.0, ge=0, le=25)):
         """Gateway long-poll: returns queued commands (marking them sent) or an empty list after `wait` s."""
@@ -504,9 +541,20 @@ def create_app(settings=None):
             with db.tx() as con:
                 rows = con.execute("SELECT id, kind, command, params_json, created_at FROM commands "
                                    "WHERE device_id=? AND status='queued' ORDER BY id", (device_id,)).fetchall()
+                superseded = []
+                if any(commands.is_stop(r["kind"], r["command"]) for r in rows):
+                    # Stop first; relay-moving commands queued with it are cancelled, never run after the stop.
+                    superseded = [r for r in rows if commands.is_actuating(r["kind"], r["command"])
+                                  and not commands.is_stop(r["kind"], r["command"])]
+                    rows = sorted((r for r in rows if r not in superseded),
+                                  key=lambda r: (not commands.is_stop(r["kind"], r["command"]), r["id"]))
+                now = utc_now()
+                con.executemany("UPDATE commands SET status='failed', done_at=?, result='superseded by stop' WHERE id=?",
+                                [(now, r["id"]) for r in superseded])
                 if rows:
-                    now = utc_now()
                     con.executemany("UPDATE commands SET status='sent', sent_at=? WHERE id=?", [(now, r["id"]) for r in rows])
+            for r in superseded:
+                core.hub.publish("command", {"id": r["id"], "status": "failed", "result": "superseded by stop"}, device_id)
             if rows:
                 out = [{"id": r["id"], "kind": r["kind"], "command": r["command"], "params": json.loads(r["params_json"]),
                         "created_at": r["created_at"]} for r in rows]

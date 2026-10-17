@@ -2,8 +2,19 @@
 # All free and open source. Install into a virtual environment on drive D (team rule):
 #   python -m venv .venv
 #   .venv\Scripts\python -m pip install -r requirements.txt
+# Dashboard
 streamlit==1.66.0
 altair==6.3.0
+# Server (local API + SQLite from the Python standard library)
+fastapi==0.143.3
+pydantic==2.14.1
+uvicorn==0.54.0
+starlette==1.8.0
+websockets==17.2
+python-multipart==0.0.32
+# Edge AI runtime (CPU only; telemetry is switched off in code)
+onnxruntime==1.31.0
+# Science, research code, digital twin, serial link
 pandas==3.0.6
 numpy==2.5.4
 scipy==1.18.1

@@ -20,6 +20,7 @@ _RE_N = re.compile(r"\bN=(?P<n>\d+)")
 _RE_TRAILER = re.compile(rf"Pmax=(?P<pmax>{_NUM}).*?Vmp=(?P<vmp>{_NUM}).*?Imp=(?P<imp>{_NUM})")
 _RE_META = re.compile(r"#\s*meta\b(?P<rest>.*)")
 _RE_DECISION = re.compile(rf"pemilih=(?P<choice>4S|2S2P|TCT)(?:.*?skor=(?P<scores>[-+0-9.eE;]+))?(?:.*?t_us=(?P<t_us>{_NUM}))?")
+_RE_REPLAY = re.compile(r"#\s*tiruan\s+berkas=(?P<file>\S+)")       # written by the emulator (shadeshift.koneksi.ESPTiruan)
 
 
 def sanitize_label(label, default="tanpa_label"):
@@ -49,6 +50,7 @@ class ParsedSweep:
     device_decision: dict | None = None
     ended: bool | None = None          # saw '# SELESAI'; None for formats without block markers
     raw_text: str = ""
+    replay_of: str | None = None       # lab file named by an emulator's '# tiruan berkas=...' line
 
     @property
     def complete(self):
@@ -59,7 +61,7 @@ class ParsedSweep:
 def parse_block(lines, label=None):
     """Lines of one sweep block (or of a whole lab/logger CSV file) -> ParsedSweep."""
     lines = [ln.rstrip("\r\n") for ln in lines]
-    v, i, header, meta, decision = [], [], {}, {}, None
+    v, i, header, meta, decision, replay_of = [], [], {}, {}, None, None
     topo, ended, has_markers = None, False, False
     for ln in lines:
         s = ln.strip()
@@ -87,6 +89,8 @@ def parse_block(lines, label=None):
                 scores = [float(x) for x in dm.group("scores").split(";")] if dm.group("scores") else None
                 decision = {"choice": dm.group("choice"), "scores": scores,
                             "latency_us": float(dm.group("t_us")) if dm.group("t_us") else None}
+            if (rm := _RE_REPLAY.match(s)):
+                replay_of = rm.group("file")
         else:
             p = s.split(",")
             if len(p) != 3 or p[0] == "V":
@@ -100,7 +104,8 @@ def parse_block(lines, label=None):
     label = sanitize_label(label)
     topology = topo if topo in TOPOLOGIES else topology_from_label(label)
     return ParsedSweep(label=label, topology=topology, v=v, i=i, header=header, device_meta=meta,
-                       device_decision=decision, ended=ended if has_markers else None, raw_text="\n".join(lines))
+                       device_decision=decision, ended=ended if has_markers else None, raw_text="\n".join(lines),
+                       replay_of=replay_of)
 
 
 def split_blocks(text):

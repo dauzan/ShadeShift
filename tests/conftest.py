@@ -26,6 +26,39 @@ def server_client(tmp_path, **env):
         yield client
 
 
+def free_port():
+    import socket
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+@contextmanager
+def live_server(tmp_path, port=None, **env):
+    """A real uvicorn server in a thread (the gateway talks HTTP). Yields (settings, core)."""
+    import threading
+    import time
+    import uvicorn
+    from shadeshift import config
+    from shadeshift.server.app import create_app
+    port = port or free_port()
+    settings = config.load(env={"SHADESHIFT_DATA_DIR": str(tmp_path), "SHADESHIFT_API_PORT": str(port), **env},
+                           env_file=tmp_path / "no.env")
+    app = create_app(settings)
+    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning"))
+    thread = threading.Thread(target=server.run, daemon=True)
+    thread.start()
+    deadline = time.time() + 30
+    while not server.started and time.time() < deadline:
+        time.sleep(0.05)
+    assert server.started, "server did not start"
+    try:
+        yield settings, app.state.core
+    finally:
+        server.should_exit = True
+        thread.join(timeout=15)
+
+
 @pytest.fixture(scope="module")
 def api(tmp_path_factory):
     with server_client(tmp_path_factory.mktemp("server")) as client:

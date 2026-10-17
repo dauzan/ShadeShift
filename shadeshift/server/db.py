@@ -148,7 +148,7 @@ DEFAULT_SETTINGS = {
     "twin_shading": "none",
     "alert_threshold_pct": 15,
     "auto_mode_defaults": {"interval_s": 10, "trigger_pct": 20, "hold_s": 30,
-                           "stability": {"enabled": True, "window_s": 30, "cv_pct": 10}},
+                           "stability": {"enabled": False, "window_s": 30, "cv_pct": 10}},   # rule not validated yet
 }
 
 

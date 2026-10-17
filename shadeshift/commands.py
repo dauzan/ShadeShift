@@ -8,8 +8,10 @@ import re
 from shadeshift import protocol
 
 RAW_EXACT = {"4S", "2S2P", "TCT", "4P", "OFF", "STOP", "STATUS", "VOC", "KAL", "SCAN", "BANTUAN", "INFO",
-             "CEKVOC 1", "PANTAU 0", "PANTAU 1", "TAHAN 0", "TAHAN 1"}
+             "CEKVOC 1", "PANTAU 0", "PANTAU 1", "TAHAN 0"}
 BLOCKED = {
+    "TAHAN 1": "TAHAN 1 holds the MOSFET at the MPP (same heat hazard as DAC); only the gateway's auto mode may use it "
+               "after the team's heat check on hardware",
     "RELAI": "RELAI is for bench tests without panels; the firmware accepts it whenever no topology is active",
     "UJIRELAI": "UJIRELAI is for bench tests without panels; the firmware accepts it whenever no topology is active",
     "DAC": "DAC drives the MOSFET directly, even with R0 closed (no thermal protection)",
@@ -25,8 +27,27 @@ ACTIONS = ("auto_select", "auto_mode_start", "auto_mode_stop", "audit_decision",
            "demo_condition", "demo_scenario_start", "demo_scenario_stop")
 
 
+TOPOLOGY_WORDS = {"4S", "2S2P", "TCT", "4P"}
+ACTUATING_RAW_WORDS = TOPOLOGY_WORDS | {"SWEEP", "VPANEL", "CEKVOC", "TAHAN"}
+STOP_ACTIONS = {"stop", "auto_mode_stop"}
+
+
 class CommandError(ValueError):
     pass
+
+
+def is_stop(kind, command):
+    """Stop-type commands: handed out first, never expire (CONTRACT §5.3)."""
+    if kind == "raw":
+        return command.split()[0].upper() in ("OFF", "STOP")
+    return command in STOP_ACTIONS
+
+
+def is_actuating(kind, command):
+    """Commands that move relays or start work: refused while a task runs, expire after 10 s in the queue."""
+    if kind == "raw":
+        return command.split()[0].upper() in ACTUATING_RAW_WORDS
+    return command not in STOP_ACTIONS
 
 
 def validate_raw(command):

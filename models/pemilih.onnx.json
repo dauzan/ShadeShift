@@ -1,0 +1,36 @@
+{
+ "model_id": "pemilih-logreg-v1@cbe60e1a8194",
+ "weights_sha256": "cbe60e1a81949156a51436d59865a8827f1829a9790530b12bd035ff5859056a",
+ "classes": [
+  "4S",
+  "2S2P",
+  "TCT"
+ ],
+ "feature_names": [
+  "Vmp_Voc",
+  "Imp_Isc",
+  "FF",
+  "n_puncak",
+  "P2_Pmax",
+  "I@0.1Voc",
+  "I@0.2Voc",
+  "I@0.3Voc",
+  "I@0.4Voc",
+  "I@0.5Voc",
+  "I@0.6Voc",
+  "I@0.7Voc",
+  "I@0.8Voc",
+  "I@0.9Voc"
+ ],
+ "opset": 17,
+ "ir_version": 9,
+ "inputs": {
+  "features": "float32 [N, 14]"
+ },
+ "outputs": {
+  "scores": "float32 [N, 3]",
+  "label": "int64 [N] (0 = 4S, 1 = 2S2P, 2 = TCT)"
+ },
+ "generator": "python -m shadeshift.edge.export_onnx",
+ "created_at": "2026-10-17T18:54:31Z"
+}

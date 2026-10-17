@@ -33,6 +33,15 @@ A feature that cannot be finished now gets a real foundation (code, interfaces, 
 
 ## 2. Stages
 
+**Order agreed on 18 Oct (overrides the numbering below):**
+1. Stage 2: gateway, with only the Stop safety fix from the review.
+2. Stage 3: dashboard on the server, plus the CSV upload page.
+3. Stage 4: demo mode.
+4. Stage 6: firmware v3, the TinyML part (the model running on the ESP32).
+5. Stage 8: start guide and docs.
+
+Stages 5 and 7 and the remaining review polish come only if time allows.
+
 Effort: **S** < 1 h, **M** 1–3 h, **L** > 3 h of build time. P0 = demo-critical, P1 = strengthens judging, P2 = foundation.
 
 ### Stage 0: Runnable baseline and repo hygiene (P0, S–M)

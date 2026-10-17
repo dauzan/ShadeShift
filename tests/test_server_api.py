@@ -213,3 +213,31 @@ def test_token_required_for_writes_only(tmp_path):
         assert c.post("/api/v1/devices/heartbeat", json=hb).status_code == 401
         assert c.post("/api/v1/devices/heartbeat", json=hb, headers={"X-ShadeShift-Token": "s3cret"}).status_code == 200
         assert c.get("/api/v1/devices").status_code == 200
+
+
+def test_stop_is_delivered_first_and_supersedes_relay_commands(api):
+    heartbeat(api, "esp32-20")
+    a = api.post("/api/v1/devices/esp32-20/commands", json={"kind": "raw", "command": "TCT"}).json()["id"]
+    b = api.post("/api/v1/devices/esp32-20/commands", json={"kind": "raw", "command": "STATUS"}).json()["id"]
+    s = api.post("/api/v1/devices/esp32-20/commands", json={"kind": "action", "command": "stop"}).json()["id"]
+    got = [c["id"] for c in api.get("/api/v1/devices/esp32-20/commands/next", params={"wait": 0}).json()["commands"]]
+    assert got == [s, b]                                   # stop first; the relay move is never handed out
+    status = {c["id"]: (c["status"], c["result"]) for c in api.get("/api/v1/devices/esp32-20/commands").json()}
+    assert status[a] == ("failed", "superseded by stop")
+
+
+def test_queued_stop_never_expires_but_relay_commands_do(api):
+    heartbeat(api, "esp32-21")
+    s = api.post("/api/v1/devices/esp32-21/commands", json={"kind": "action", "command": "stop"}).json()["id"]
+    t = api.post("/api/v1/devices/esp32-21/commands", json={"kind": "raw", "command": "4S"}).json()["id"]
+    api.core.db.con.execute("UPDATE commands SET created_at='2020-01-01T00:00:00.000Z' WHERE id IN (?,?)", (s, t))
+    api.core.maintain()
+    status = {c["id"]: c["status"] for c in api.get("/api/v1/devices/esp32-21/commands").json()}
+    assert status[s] == "queued" and status[t] == "expired"
+
+
+def test_stop_all_targets_every_live_device(api):
+    heartbeat(api, "esp32-22")
+    heartbeat(api, "demo-22", kind="emulator")
+    targets = {q["device_id"] for q in api.post("/api/v1/stop_all").json()["queued"]}
+    assert {"esp32-22", "demo-22"} <= targets and "lab" not in targets and "upload" not in targets
