@@ -404,3 +404,12 @@ Their findings are merged above (B9–B12, F1–F7, §7.2, summary point 9). The
 - Later reads of the snapshot use `python -B`.
 
 **Not yet independently verified:** B2 (port lock after refresh; needs a device or virtual COM port), B5, B6 and D4–D9 (read-only findings). The Phase 2 review includes an ANALYSIS verification lens.
+
+**Phase 2 review corrections (18 Oct):**
+- **B5:** there is no `AttributeError`. After a short 4S sweep the flow sends nothing, waits 10 s, reports "gagal pindah ke None" (failed to switch to None), and auto mode ends silently.
+- **B6:** the emulator's real hazards were worse than described. An OFF during a switch was undone when the switch finished, and an OFF during a sweep crashed the sweep thread.
+- **B2:** correct for a refresh or a closed tab. A second tab cannot connect while the first holds the port.
+
+All three were fixed in Stages 2–3: the gateway owns the port, the emulator runs one command at a time, and short sweeps give a clear error.
+
+**Resolution status:** see [CHANGELOG.md](CHANGELOG.md) and the status table in [START_HERE.md](START_HERE.md) §3.

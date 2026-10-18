@@ -1,5 +1,10 @@
 # ShadeShift build plan (Phase 3)
 
+> **Status 18 Oct 2026:**
+> - **Done:** Stages 0, 1, 2, 3, 4, 6 and 8 (see [CHANGELOG.md](CHANGELOG.md)).
+> - **Not built:** Stage 5 (technical-report page, decision audit, stability rule), Stage 7 (localization, L3 page, export, MQTT), the remaining review polish, and the offline wheelhouse (declined).
+> - **Next steps and what is verified only on the laptop:** [START_HERE.md](START_HERE.md).
+
 Goal: a demo for Smart-X Demo Day (21–23 Oct 2026) that runs 100 % locally, free and offline. Data flows device → edge → server → dashboard as defined in [CONTRACT.md](CONTRACT.md), and every gap marked P0 in [ANALYSIS.md](ANALYSIS.md) is closed.
 
 Stages are ordered so that **missing features come first**, and every stage leaves a working, demonstrable system. After each stage I:
