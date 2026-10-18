@@ -1,0 +1,15 @@
+{
+  "name": "default",
+  "description": "Tanpa bayangan, lalu bayangan berubah tiga kali; mode otomatis memilih ulang susunan tiap kali daya berubah lebih dari 20 %",
+  "label": "DEMO: memutar ulang kurva lab asli (lampu halogen); waktu pindah dan sapuan adalah perkiraan",
+  "timeline": [
+    { "at_s": 0,   "condition": "V1c",          "repeat": 1, "note": "tanpa bayangan: TCT terbaik, pemilih memilih TCT" },
+    { "at_s": 45,  "condition": "V3_paranet65", "repeat": 1, "note": "paranet di modul A: 4S terbaik, pemilih memilih 4S" },
+    { "at_s": 90,  "condition": "V4_paranet65", "repeat": 3, "note": "paranet di modul A+B: TCT terbaik, pemilih memilih TCT" },
+    { "at_s": 135, "condition": "V1c",          "repeat": 1, "note": "bayangan hilang lagi" }
+  ],
+  "duration_s": 180,
+  "loop": true,
+  "speed": 1.0,
+  "auto_mode": { "interval_s": 10, "trigger_pct": 20, "hold_s": 30 }
+}

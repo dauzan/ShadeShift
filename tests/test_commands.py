@@ -39,7 +39,8 @@ def test_actions():
         {"interval_s": 10.0, "trigger_pct": 20.0, "hold_s": 30.0}
     assert C.validate_action("cycle", {"label": "uji A", "repeats": 2}) == \
         {"label": "uji_A", "repeats": 2, "topologies": ["4S", "2S2P", "TCT", "4P"]}
-    assert C.validate_action("demo_scenario_start", {"name": "kilat"}) == {"name": "kilat", "speed": 1.0}
+    assert C.validate_action("demo_scenario_start", {"name": "kilat"}) == {"name": "kilat", "speed": None}
+    assert C.validate_action("demo_scenario_start", {"name": "kilat", "speed": 5}) == {"name": "kilat", "speed": 5.0}
     for name, params in [("fly", {}), ("auto_mode_start", {"interval_s": 1}), ("cycle", {"repeats": 9}),
                          ("cycle", {"topologies": ["5S"]}), ("demo_condition", {"condition": "../x"})]:
         with pytest.raises(C.CommandError):

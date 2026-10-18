@@ -123,5 +123,5 @@ def validate_action(name, params):
         scenario = str(params.get("name", "default"))
         if not re.fullmatch(r"[A-Za-z0-9_\-]{1,40}", scenario):
             raise CommandError("scenario name must be letters, digits, '_' or '-'")
-        return {"name": scenario, "speed": _number(params, "speed", 0.1, 50, 1.0)}
+        return {"name": scenario, "speed": _number(params, "speed", 0.1, 50, None)}   # None = scenario's own speed
     return {}

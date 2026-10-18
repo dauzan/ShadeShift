@@ -1,0 +1,15 @@
+{
+  "name": "kilat",
+  "description": "Skenario default dipercepat 3x (sekitar 1 menit per putaran) untuk latihan",
+  "label": "DEMO: memutar ulang kurva lab asli (lampu halogen); waktu dipercepat 3x",
+  "timeline": [
+    { "at_s": 0,   "condition": "V1c",          "repeat": 1, "note": "tanpa bayangan" },
+    { "at_s": 45,  "condition": "V3_paranet65", "repeat": 1, "note": "paranet di modul A" },
+    { "at_s": 90,  "condition": "V4_paranet65", "repeat": 3, "note": "paranet di modul A+B" },
+    { "at_s": 135, "condition": "V1c",          "repeat": 1, "note": "bayangan hilang lagi" }
+  ],
+  "duration_s": 180,
+  "loop": true,
+  "speed": 3.0,
+  "auto_mode": { "interval_s": 10, "trigger_pct": 20, "hold_s": 30 }
+}

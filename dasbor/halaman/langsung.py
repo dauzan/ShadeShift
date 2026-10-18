@@ -64,10 +64,26 @@ with k2:
                    "tetapi lebih buruk pada 10 dari 12 skenario daun. Tiap sapuan memutus daya beberapa detik.")
 with k3:
     if demo:
-        kondisi = (dev["state"].get("demo") or {}).get("available_conditions") or []
-        now = (dev["state"].get("demo") or {}).get("condition")
+        info_demo = dev["state"].get("demo") or {}
+        skenario = info_demo.get("scenarios") or []
+        if skenario:
+            with st.container(border=True):
+                st.markdown("**Mode demo: skenario bayangan**")
+                nama = st.selectbox("Skenario", skenario, index=skenario.index("default") if "default" in skenario else 0,
+                                    help="default: tiga perubahan bayangan, pemilih benar di tiap langkah. kilat: sama, 3x "
+                                         "lebih cepat. v6_kelemahan: kasus yang diketahui salah (jujur).")
+                cepat = st.selectbox("Kecepatan", [None, 1.0, 2.0, 3.0, 5.0, 10.0],
+                                     format_func=lambda x: "bawaan skenario" if x is None else f"{x:g}x")
+                a, b = st.columns(2)
+                if a.button("Mulai skenario", width="stretch", type="primary"):
+                    U.kirim_perintah(pilih, "action", "demo_scenario_start",
+                                     {"name": nama, **({"speed": cepat} if cepat else {})})
+                if b.button("Hentikan", width="stretch"):
+                    U.kirim_perintah(pilih, "action", "demo_scenario_stop")
+        kondisi = info_demo.get("available_conditions") or []
+        now = info_demo.get("condition")
         if kondisi:
-            baru = st.selectbox("Kondisi bayangan tiruan", kondisi, index=kondisi.index(now) if now in kondisi else 0,
+            baru = st.selectbox("Atau ganti kondisi bayangan manual", kondisi, index=kondisi.index(now) if now in kondisi else 0,
                                 help="Ganti = bayangan berubah. Data tetap kurva lab yang diputar ulang.")
             if baru != now and st.button("Terapkan kondisi", width="stretch"):
                 U.kirim_perintah(pilih, "action", "demo_condition", {"condition": baru})
@@ -87,6 +103,10 @@ def tampilan(device_id, demo):
         st.error(f"Tidak bisa membaca data: {e}"); return
     d, sett, harapan = snap["device"], snap["settings"], snap["expected"] or {}
     state = d.get("state") or {}
+    sk = (state.get("demo") or {}).get("scenario")
+    if sk:
+        st.info(f"▶ **Skenario DEMO '{sk['name']}'** ({sk['speed']:g}x) · langkah {sk['step']}/{sk['steps']}: "
+                f"**{sk['condition']}** · {sk['note']} · t = {sk['t_s']:.0f} s")
     m = st.columns(5)
     m[0].metric("Susunan aktif", state.get("active_topology") or "terbuka")
     tugas = state.get("task") or ("mode otomatis" if (state.get("auto_mode") or {}).get("on") else "-")

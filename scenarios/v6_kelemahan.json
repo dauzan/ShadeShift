@@ -1,0 +1,14 @@
+{
+  "name": "v6_kelemahan",
+  "description": "Kasus lemah pemilih yang diketahui: bayangan diagonal A+D (V6). Pemilih memilih TCT, padahal 2S2P terukur 4,9 % lebih baik (lab)",
+  "label": "DEMO: memutar ulang kurva lab asli (lampu halogen); menunjukkan kesalahan pemilih yang tercatat di LAPORAN_UJI_FISIK.md",
+  "timeline": [
+    { "at_s": 0,  "condition": "V1c",          "repeat": 1, "note": "tanpa bayangan" },
+    { "at_s": 45, "condition": "V6_paranet65", "repeat": 1, "note": "diagonal A+D: pemilih memilih TCT, 2S2P lebih baik 4,9 % (lab)" },
+    { "at_s": 90, "condition": "V1c",          "repeat": 1, "note": "bayangan hilang lagi" }
+  ],
+  "duration_s": 135,
+  "loop": false,
+  "speed": 1.0,
+  "auto_mode": { "interval_s": 10, "trigger_pct": 20, "hold_s": 30 }
+}

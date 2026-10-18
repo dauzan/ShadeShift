@@ -292,7 +292,7 @@ Responses:
              "demo": null, "last_error": null } }
 ```
 
-- `kind` ∈ `esp32`, `emulator`. `state.demo` (demo device only): `{ "condition": "V3_paranet65", "scenario": "default", "t_s": 52.0, "available_conditions": ["V1", "V1b", "V1c", "V3_opak", "…"], "standby": false }`.
+- `kind` ∈ `esp32`, `emulator`. `state.demo` (demo device only): `{ "condition": "V3_paranet65", "repeat": 1, "available_conditions": ["V1", "V1b", "V1c", "V3_opak", "…"], "scenarios": ["default", "kilat", "v6_kelemahan"], "scenario": null or §6.4 progress object, "standby": false }`.
 - Response: `200 { "ok": true, "server_time": "…" }`. The gateway logs its clock offset if it exceeds 2 s.
 - **Runs.**
   - The server creates a run the first time it sees a new `run_uuid`. Its `source` is `device` for kind `esp32` and `demo` for kind `emulator`.
@@ -490,25 +490,33 @@ If that line is missing, the topology comes from the file name pattern `<conditi
 
 ### 6.4 Demo scenario (`scenarios/<name>.json`)
 
+Shipped: `default` (three shading changes, the selector is right at every step), `kilat` (the same at 3x, for rehearsals), `v6_kelemahan` (the selector's known weak case, shown honestly).
+
 ```json
 {
   "name": "default",
-  "description": "Clear, then shade net on A, diagonal A+D, A+B, clear again; auto mode on",
-  "label": "DEMO: replays real lab curves (halogen lamp); timing delays are estimates",
-  "timing": { "switch_s": 0.6, "sweep_s": 1.5 },
-  "auto_mode": { "interval_s": 10, "trigger_pct": 20, "hold_s": 30, "stability": { "enabled": false, "window_s": 30, "cv_pct": 10 } },
+  "description": "No shading, then three shading changes; auto mode re-selects whenever power changes by more than 20 %",
+  "label": "DEMO: replays real lab curves (halogen lamp); switch and sweep times are estimates",
   "timeline": [
-    { "at_s": 0,   "condition": "V1c",          "note": "no shading" },
-    { "at_s": 40,  "condition": "V3_paranet65", "note": "shade net on module A" },
-    { "at_s": 90,  "condition": "V6_paranet65", "note": "diagonal A+D, the selector's known weak case" },
-    { "at_s": 140, "condition": "V4_paranet75", "note": "A+B" },
-    { "at_s": 190, "condition": "V1c",          "note": "clear again" }
+    { "at_s": 0,   "condition": "V1c",          "repeat": 1, "note": "no shading: TCT best, selector picks TCT" },
+    { "at_s": 45,  "condition": "V3_paranet65", "repeat": 1, "note": "shade net on A: 4S best, selector picks 4S" },
+    { "at_s": 90,  "condition": "V4_paranet65", "repeat": 3, "note": "shade net on A+B: TCT best, selector picks TCT" },
+    { "at_s": 135, "condition": "V1c",          "repeat": 1, "note": "shading gone again" }
   ],
-  "loop": true
+  "duration_s": 180,
+  "loop": true,
+  "speed": 1.0,
+  "auto_mode": { "interval_s": 10, "trigger_pct": 20, "hold_s": 30 }
 }
 ```
 
-Conditions must exist in the lab dataset. The scenario loader rejects unknown ones.
+Rules:
+- `condition` must exist in the lab dataset and `repeat` (optional) must exist for it; the loader rejects anything else. A pinned repeat makes the show reproducible; without it the emulator picks one repeat per condition.
+- `at_s` must increase. `duration_s` (default last step + 45 s) is the cycle length; with `loop` the timeline starts again.
+- `speed` > 1 makes everything faster: timeline, emulated switch/sweep delays (~0.65 s / ~3 s at 1x, estimated from firmware delays, not measured) and the auto-mode `interval_s` and `hold_s`. The `demo_scenario_start` action's `speed` overrides it.
+- The player starts the normal auto mode (trigger + hold, §7), so the edge AI reacts exactly as with the real device. The stability rule is not used.
+- Progress is sent as `info` events ("DEMO step 2/4: ...") and in the heartbeat as `state.demo.scenario = { "name", "step", "steps", "note", "condition", "speed", "t_s" }`.
+- `stop` (any stop path) ends the scenario. A scenario never runs on an `esp32` device.
 
 ### 6.5 Runtime files (all under `SHADESHIFT_DATA_DIR`, never committed)
 

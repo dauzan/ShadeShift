@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 
 from shadeshift import __version__, commands, config as cfg, inti, koneksi, protocol
 from shadeshift.edge.selector import EdgeSelector
+from shadeshift.gateway import demo as demo_mode
 from shadeshift.gateway.uplink import ServerLink, utc_now
 
 log = logging.getLogger("shadeshift.gateway")
@@ -68,6 +69,7 @@ class Gateway:
         self.firmware = None if self.serial else "emulator (lab replay)"
         self.last_error = None
         self.auto_mode = {"on": False}
+        self.scenario = None                       # demo_mode.ScenarioPlayer while a demo scenario runs
         self._auto_stop = threading.Event()
         self._task_stop = threading.Event()
         self._decisions = {}                       # sweep uuid -> Decision made inside a selection flow
@@ -211,7 +213,11 @@ class Gateway:
                 return self.link.command_result(cid, "done", "sent")
             if name == "demo_condition":
                 return self._demo_condition(cid, params["condition"])
-            if name in ("demo_scenario_start", "demo_scenario_stop", "audit_decision"):
+            if name == "demo_scenario_stop":
+                return self._stop_now(cid)
+            if name == "demo_scenario_start":
+                return self._start_scenario(cid, params)
+            if name == "audit_decision":
                 return self.link.command_result(cid, "failed", f"{name} is not available yet in this build")
             if self.kon.kerja:
                 return self.link.command_result(cid, "failed", f"busy: {self.kon.kerja}")
@@ -232,6 +238,8 @@ class Gateway:
         """The one stop path (stop, auto_mode_stop, raw OFF/STOP): latch so no task writes again, send OFF, and report
         'done' only when the device confirms all relays open. The firmware finishes the step it is in first
         (a sweep can take ~3-4 s)."""
+        if self.scenario is not None:
+            self.scenario.stop()
         self._auto_stop.set()
         self._task_stop.set()
         self.auto_mode = {"on": False}
@@ -299,6 +307,20 @@ class Gateway:
         self.kon.hentikan(batas=10)                # leave the array off after the cycle
         return "done", f"{done} sweeps"
 
+    def _start_scenario(self, cid, params):
+        if self.serial:
+            return self.link.command_result(cid, "failed", "demo scenarios only run on an emulated device")
+        if self.kon.kerja or (self.scenario and self.scenario.thread and self.scenario.thread.is_alive()):
+            return self.link.command_result(cid, "failed", f"busy: {self.kon.kerja or 'scenario'} (press Stop first)")
+        try:
+            sc = demo_mode.load(params["name"], self.kon.ser.semua)
+        except demo_mode.ScenarioError as e:
+            return self.link.command_result(cid, "failed", str(e))
+        self.kon.lanjutkan()                       # a new task chosen by the user releases the stop latch
+        self.scenario = demo_mode.ScenarioPlayer(self, sc, params.get("speed"))
+        self.scenario.start()
+        return self.link.command_result(cid, "done", f"started {sc['name']} at {self.scenario.speed:g}x")
+
     def _demo_condition(self, cid, condition):
         if self.serial:
             return self.link.command_result(cid, "failed", "demo_condition only applies to an emulated device")
@@ -313,8 +335,10 @@ class Gateway:
         connected = bool(self.kon and self.kon.hidup) and not ending
         demo = None
         if self.kon is not None and not self.serial:
-            demo = {"condition": self.kon.ser.kondisi, "available_conditions": sorted(self.kon.ser.semua),
-                    "scenario": None, "standby": self.standby}
+            demo = {"condition": self.kon.ser.kondisi, "repeat": self.kon.ser.ulangan,
+                    "available_conditions": sorted(self.kon.ser.semua),
+                    "scenario": self.scenario.state() if self.scenario else None,
+                    "scenarios": demo_mode.available(), "standby": self.standby}
         return {"device_id": self.device_id, "kind": self.kind, "transport": self.transport, "firmware": self.firmware,
                 "run_uuid": self.run_uuid,
                 "gateway": {"version": __version__, **self.selector.info()},
@@ -365,6 +389,8 @@ class Gateway:
         log.info("gateway %s (%s) running; edge AI: %s", self.device_id, self.transport, self.selector.runtime_label)
 
     def stop(self):
+        if self.scenario is not None:
+            self.scenario.stop()
         self._auto_stop.set()
         self._task_stop.set()
         if self.kon is not None and self.kon.hidup:

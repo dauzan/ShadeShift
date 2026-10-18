@@ -1,6 +1,7 @@
 """ShadeShift launcher: one entry point for every part of the local system (CONTRACT.md §1.1).
 
     python run.py demo          everything without hardware: server + emulated ESP32 + dashboard, opens the browser
+    python run.py demo --scenario        ... and play the default shading scenario (or --scenario kilat)
     python run.py live          everything with the ESP32 on USB (port auto-detected; --port COM5 overrides),
                                 plus a standby demo device to switch to if the hardware fails
     python run.py dashboard     only the dashboard (http://127.0.0.1:8501)
@@ -84,7 +85,7 @@ def _soft_stop(p):
         pass
 
 
-def _start_all(settings, serial_port=None, live=False, open_browser=True):
+def _start_all(settings, serial_port=None, live=False, open_browser=True, scenario=None):
     """Start server, gateway(s) and dashboard as child processes in this console; supervise until Ctrl+C."""
     for name, port in (("API", settings.api_port), ("dashboard", settings.dashboard_port)):
         if not _port_free("127.0.0.1", port):
@@ -109,6 +110,14 @@ def _start_all(settings, serial_port=None, live=False, open_browser=True):
         else:
             procs["gateway-demo"] = subprocess.Popen(me + ["gateway", "--source", "demo"], cwd=ROOT)
         procs["dashboard"] = subprocess.Popen(dashboard_command(settings), cwd=ROOT, **OWN_GROUP)
+        if scenario:
+            end = time.time() + 60
+            while time.time() < end and not any(d["id"] == "demo-01" and d["online"] for d in
+                                                requests.get(f"{settings.api_url}/api/v1/devices", timeout=5).json()):
+                time.sleep(0.5)
+            r = requests.post(f"{settings.api_url}/api/v1/devices/demo-01/commands", headers=headers, timeout=10,
+                              json={"kind": "action", "command": "demo_scenario_start", "params": {"name": scenario}})
+            print(f"Demo scenario '{scenario}': {'queued' if r.status_code == 202 else r.text}")
         url = f"http://{DASHBOARD_HOST}:{settings.dashboard_port}"
         if _wait_http(url + "/_stcore/health", 90, [procs["dashboard"]]) and open_browser:
             webbrowser.open(url)
@@ -153,7 +162,7 @@ def _start_all(settings, serial_port=None, live=False, open_browser=True):
 
 
 def cmd_demo(settings, args):
-    _start_all(settings, live=False, open_browser=not args.no_browser)
+    _start_all(settings, live=False, open_browser=not args.no_browser, scenario=args.scenario)
 
 
 def cmd_live(settings, args):
@@ -247,6 +256,8 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("demo", help="server + emulated ESP32 + dashboard (no hardware)")
     p.add_argument("--no-browser", action="store_true")
+    p.add_argument("--scenario", nargs="?", const="default", default=None,
+                   help="also start a demo scenario (default: 'default'; see scenarios/)")
     p = sub.add_parser("live", help="server + real ESP32 gateway + standby demo + dashboard")
     p.add_argument("--port", default=None, help="serial port, e.g. COM5 (default: auto-detect the ESP32)")
     p.add_argument("--no-browser", action="store_true")
