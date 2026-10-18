@@ -7,13 +7,14 @@ replays real lab curves; that data is labeled source=demo all the way to the das
 """
 import logging
 import random
+import re
 import threading
 import time
 import uuid
 from datetime import datetime, timezone
 
 from shadeshift import __version__, commands, config as cfg, inti, koneksi, protocol
-from shadeshift.edge.selector import EdgeSelector
+from shadeshift.edge.selector import Decision, EdgeSelector
 from shadeshift.gateway import demo as demo_mode
 from shadeshift.gateway.uplink import ServerLink, utc_now
 
@@ -26,6 +27,7 @@ FAILURE_HINTS = [
     ("GAGAL: arus tidak terdeteksi", "not enough light (5 mA threshold) or check fuse, R0, MOSFET and shunt"),
     ("GAGAL: pilih topologi dulu", "select a topology first"),
 ]
+RE_INFO = re.compile(r"# INFO fw=(?P<fw>[\w.]+), id=(?P<id>\w+), n=(?P<n>\d+), w=(?P<w>[0-9a-f]{12})")
 
 
 def find_esp32_port():
@@ -73,6 +75,8 @@ class Gateway:
         self._auto_stop = threading.Event()
         self._task_stop = threading.Event()
         self._decisions = {}                       # sweep uuid -> Decision made inside a selection flow
+        self._crosscheck = {}                      # sweep uuid -> gateway Decision when the ESP32 decided (firmware v3)
+        self.esp32 = None                          # firmware v3 INFO: {"fw", "id", "weights", "weights_match"}
         self._buf_lock = threading.Lock()
         self._log, self._events, self._metrics = [], [], []
         self._stop = threading.Event()
@@ -90,6 +94,8 @@ class Gateway:
         self.kon.pengamat_baris.append(self._on_line)
         self.kon.pengamat_sapuan.append(self._on_sweep)
         self.kon.pengamat_pilih.append(self._on_selection)
+        if self.serial:
+            self.kon.kirim("INFO")                 # firmware v3 answers with version, chip id and weights fingerprint
         self.event("status", f"connected to {'serial ' + self.port if self.serial else 'emulated ESP32 (lab replay)'}")
 
     @property
@@ -129,6 +135,16 @@ class Gateway:
         at = datetime.fromtimestamp(t, timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
         with self._buf_lock:
             self._log.append({"at": at, "dir": direction, "line": line[:500]})
+        if direction == "rx" and (m := RE_INFO.match(line)):
+            ours = self.selector.model_id.split("@")[1]
+            self.esp32 = {"fw": m["fw"], "id": m["id"], "weights": m["w"], "weights_match": m["w"] == ours}
+            self.firmware = f"v3 ({m['fw']})"
+            if m["w"] != ours:
+                self.event("error", f"ESP32 selector weights w={m['w']} differ from the laptop model ({ours}). "
+                                    "Reflash firmware/shadeshift_firmware_v3 with the current pemilih_bobot.h",
+                           {"esp32_weights": m["w"], "laptop_weights": ours})
+            else:
+                self.event("status", f"ESP32 firmware {m['fw']} with the same selector weights ({ours}): on-board AI active")
         if direction == "rx" and "GAGAL" in line:
             hint = next((h for key, h in FAILURE_HINTS if key in line), None)
             self.event("error", line.lstrip("# ").strip(), {"hint": hint} if hint else {})
@@ -138,6 +154,7 @@ class Gateway:
         sweep_uuid = str(uuid.uuid4())
         sp.meta["uuid"] = sweep_uuid
         sp.meta["complete"] = p.complete
+        sp.meta["device_decision"] = p.device_decision if self.serial else None   # never trusted from an emulator
         sweep_ms, switch_ms = sp.meta.get("sweep_ms"), sp.meta.get("switch_ms")
         body = {"uuid": sweep_uuid, "device_id": self.device_id, "run_uuid": self.run_uuid,
                 "source": "device" if self.serial else "demo", "label": p.label, "topology": p.topology,
@@ -145,7 +162,7 @@ class Gateway:
                 "points": {"v": p.v, "i": p.i}, "header": p.header,
                 "timing": {"sweep_ms": round(sweep_ms, 1) if sweep_ms else None, "switch_ms": round(switch_ms, 1) if switch_ms else None},
                 "device_meta": p.device_meta, "complete": p.complete, "raw_text": "\n".join(lines)}
-        if self.serial and p.device_decision:
+        if self.serial and p.device_decision and not self.kon.kerja:    # flows post their own (applied) decision
             body["device_decision"] = p.device_decision
         if not self.serial:
             body["replay_of"] = p.replay_of
@@ -166,6 +183,18 @@ class Gateway:
         d = self.selector.decide(sp.V, sp.I)
         if d is None:
             return None
+        dd = sp.meta.get("device_decision")
+        if dd and dd.get("scores"):
+            # Firmware v3 decided on the ESP32 (TinyML): apply ITS decision; keep the laptop result as a cross-check.
+            w = (self.esp32 or {}).get("weights")
+            esp = Decision(choice=dd["choice"], scores=dd["scores"], features=d.features,
+                           latency_us=dd.get("latency_us"), model_us=dd.get("latency_us"), decided_by="esp32",
+                           model_id=f"pemilih-logreg-v1@{w}" if w else "pemilih.h@firmware")
+            self._crosscheck[sp.meta["uuid"]] = d
+            if esp.choice != d.choice:
+                self.event("info", f"ESP32 chose {esp.choice}, laptop cross-check ({d.decided_by}) chose {d.choice}",
+                           {"esp32": esp.choice, "laptop": d.choice})
+            d = esp
         self._decisions[sp.meta["uuid"]] = d
         return {"pilihan": d.choice, "skor": d.scores, "decided_by": d.decided_by, "latency_us": d.latency_us}
 
@@ -179,6 +208,9 @@ class Gateway:
             return
         applied = not hasil.get("galat")
         self._post_decision(d, s4.meta["uuid"], hasil.get("pemicu", "auto_once"), applied=applied)
+        cross = self._crosscheck.pop(s4.meta["uuid"], None)
+        if cross is not None:
+            self._post_decision(cross, s4.meta["uuid"], "observe", applied=False)
         sent = self.kon.terakhir_dikirim.get(d.choice) if d.choice != "4S" else None
         if applied and sent and sent >= s4.waktu:
             self.metric("e2e_decision_ms", (sent - s4.waktu) * 1000, "ms", "measured",
@@ -196,8 +228,11 @@ class Gateway:
             "uuid": str(uuid.uuid4()), "sweep_uuid": sweep_uuid, "device_id": self.device_id, "decided_by": d.decided_by,
             "model_id": d.model_id, "choice": d.choice, "scores": d.scores, "features": d.features,
             "latency_us": d.latency_us, "trigger": trigger, "applied": applied, "created_at": utc_now()})
-        # Inference time is real compute time on this laptop even in demo mode, so it is 'measured'.
-        self.metric("decision_us", d.latency_us, "us", "measured", {"model_us": d.model_us, "runtime": self.selector.runtime})
+        # Inference time is real compute time (laptop, or the ESP32 itself for firmware v3) even in demo mode: 'measured'.
+        if d.latency_us is not None:
+            where = "esp32" if d.decided_by == "esp32" else self.selector.runtime
+            self.metric("decision_us", d.latency_us, "us", "measured", {"model_us": d.model_us, "runtime": where,
+                                                                        "decided_by": d.decided_by})
 
     # ---------- commands ----------
     def _execute(self, c):
@@ -341,7 +376,7 @@ class Gateway:
                     "scenarios": demo_mode.available(), "standby": self.standby}
         return {"device_id": self.device_id, "kind": self.kind, "transport": self.transport, "firmware": self.firmware,
                 "run_uuid": self.run_uuid,
-                "gateway": {"version": __version__, **self.selector.info()},
+                "gateway": {"version": __version__, **self.selector.info(), "esp32": self.esp32},
                 "state": {"connected": connected, "ending": ending,
                           "active_topology": self.kon.topo if self.kon else None,
                           "task": self.kon.kerja if self.kon else None, "auto_mode": self.auto_mode, "demo": demo,

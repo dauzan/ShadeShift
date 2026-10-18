@@ -21,8 +21,12 @@ rows = []
 for d in U.get("/devices"):
     if d["kind"] == "virtual": continue
     gw, stt = d.get("gateway") or {}, d.get("state") or {}
+    esp = gw.get("esp32") or {}
     rows.append({"alat": d["id"], "jenis": "ESP32" if d["kind"] == "esp32" else "TIRUAN (demo)",
                  "online": "ya" if d["online"] else "tidak", "sambungan": d.get("transport"), "terakhir": d["last_seen"][:19],
+                 "firmware": d.get("firmware") or "-",
+                 "AI di ESP32": "-" if d["kind"] != "esp32" else
+                                ("ya, bobot sama" if esp.get("weights_match") else "BOBOT BERBEDA") if esp else "tidak (firmware v2)",
                  "AI di gateway": gw.get("runtime", "-"), "diputuskan oleh": U.label_keputusan(gw.get("decided_by")),
                  "antrean belum terkirim": stt.get("outbox_pending"), "galat": stt.get("last_error") or ""})
 if rows:

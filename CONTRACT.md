@@ -136,20 +136,22 @@ Gateway checks (new in v1; ANALYSIS B10, B11, F5):
 | **State sync** | On connect and after any error, the gateway sends `STATUS` and parses `# topologi=<T or ->, R0=<tutup/buka>, …` to learn the real relay state |
 | **Failure hints** | Known firmware failures become `error` events with a hint: `GAGAL: Voc di luar …` → "check light and relay wiring; under a dim lamp lower VPANEL (e.g. `VPANEL 17`)"; `GAGAL: arus tidak terdeteksi` → "not enough light (5 mA threshold) or check fuse/R0/MOSFET/shunt"; `GAGAL: pilih topologi dulu` → "select a topology first" |
 
-### 3.3 v3 additions (Foundation: written in Phase 3, verified only when flashed on the board)
+### 3.3 v3 additions (built: `firmware/shadeshift_firmware_v3/`; tested on the laptop with simulated hardware, not yet on the board)
 
-All additions are new `#` lines or new commands, so v2 tools (logger, old dashboard) keep working.
+All additions are new `#` lines or new commands, so v2 tools (logger, old dashboard) keep working. Team guide and hardware checklist: `firmware/CARA_PAKAI_v3.md`.
 
 | Addition | Format | Notes |
 |---|---|---|
-| `INFO` command | `# INFO fw=3.0.0, id=<12 hex chip id>, n=201` | Gives a device id and firmware version |
+| `INFO` command | `# INFO fw=3.0.0, id=<12 hex chip id>, n=201, w=<12 hex>` (also printed at boot) | `w` = first 12 hex of `weights_sha256` (§4), computed on the ESP32. The gateway sends `INFO` on connect; a different `w` raises an `error` event ("reflash with the current weights") |
 | Sweep metadata | `# meta t_ms=<uptime ms>, seq=<n>` right after `# MULAI` | Sweep counter and uptime (the ESP32 has no real-time clock) |
-| On-device selector | `# pemilih=<4S/2S2P/TCT>, skor=<s0>;<s1>;<s2>, t_us=<int>` before `# SELESAI`, only after 4S sweeps | `pemilih.h` running on the ESP32; `t_us` = resample + features + model time |
-| Hold-at-MPP monitor | `TAHAN 1/0` command; while on, `# P t_ms=<ms>, V=<v>, I=<i>, P=<p>` every 0.5 s | Lets the trigger rule watch power without sweeping. Thermal behaviour must be checked on hardware first |
-| Bench mode | `BENCH 1/0` → `# BENCH ON/OFF` | `RELAI`, `UJIRELAI` and `DAC` work only with `BENCH 1` and no topology active ("only without panels"). `BENCH` is **not** in the API allowlist (§5.3); it is for the Arduino Serial Monitor |
-| Safety fixes | — | `OFF`/`STOP`/`BATAL` are honoured inside SIKLUS between steps and at the prompts; a failed sweep ends SIKLUS; `DAC` is refused while R0 is closed; negative `DAC` values are rejected |
+| On-device selector | `# pemilih=<4S/2S2P/TCT>, skor=<s0>;<s1>;<s2>, t_us=<int>` after the `# Pmax=` line, only after 4S sweeps | `pemilih.h` running on the ESP32 on exactly the numbers it printed, so the decision can be recomputed from the log. `t_us` = resample + features + model time on the ESP32 |
+| `PILIH` command | 4S → SWEEP → selector → safe switch → SWEEP, ends with `# PILIH SELESAI: <T>` or `# PILIH GAGAL: …` / `# PILIH dihentikan` | Autonomous on-board selection (Serial Monitor use). Not in the API allowlist: the dashboard uses the `auto_select` action, which applies the ESP32's decision when firmware v3 is present |
+| Bench mode | `BENCH 1/0` → `# BENCH ON…` / `# BENCH OFF` | `RELAI`, `UJIRELAI` and `DAC` work only with `BENCH 1` and no topology active ("only without panels"). `OFF` ends bench mode. Not in the API allowlist (§5.3) |
+| `STATUS` | `# topologi=<T or ->, R0=<tutup/buka>, cekVoc=<ON/OFF>, bench=<ON/OFF>, fw=3.0.0` | Starts like v2, so the gateway's parser is unchanged |
+| Safety fixes | — | `OFF`/`STOP`/`BATAL` are honoured inside `SIKLUS` and `PILIH` between steps and at the `LANJUT` prompt; a failed sweep ends `SIKLUS` with all relays open; `DAC` accepts only 0–4095 |
+| Hold-at-MPP monitor (`TAHAN`) | — | **Not implemented** (heat risk on the small MOSFET heatsink). Reserved until a heat check on the board |
 
----
+**Gateway behaviour with v3.** In `auto_select` and auto mode, the ESP32's decision is applied and stored with `decided_by = "esp32"`, `model_id = "pemilih-logreg-v1@<w>"` and the ESP32's `t_us`. The gateway's own decision on the same sweep is stored next to it as `observe` (cross-check). If the two differ, an `info` event says so. An emulated device never produces `esp32` decisions.
 
 ## 4. Edge AI model (selector)
 
