@@ -1,6 +1,6 @@
 # Sample upload files
 
-Use them on the dashboard's **Unggah CSV** page or with `POST /api/v1/uploads` (CONTRACT.md §5.5). Regenerate with
+Use them on the dashboard's **Unggah CSV** page or with `POST /api/v1/uploads` (docs/CONTRACT.md §5.5). Regenerate with
 `python tools/make_samples.py`. All curves are real halogen-lamp lab measurements from `SHADESHIFT_ML/data/data_lab/`
 (that folder is only read, never written).
 

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rekomendasi Rangkaian</title>
+<style>
+:root{--bg:#ffffff;--fg:#0f172a;--muted:#64748b;--line:#e2e8f0;--panel:#f8fafc;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding:16px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+h1{margin:0;font-size:22px}.badge{font-size:11px;font-weight:700;letter-spacing:.06em;background:#fef3c7;color:#92400e;
+  border-radius:999px;padding:3px 10px;vertical-align:middle;margin-left:8px}
+.now{margin:4px 0 0;font-weight:600}.meta{color:var(--muted);font-size:13px}
+.stage{margin-top:12px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:linear-gradient(#f8fafc,#ffffff)}
+.views{display:flex;flex-wrap:wrap}.view{flex:1 1 420px;min-width:0;position:relative}
+.view + .view{border-left:1px solid var(--line)}
+.view h3{position:absolute;top:10px;left:14px;margin:0;font-size:14px;background:rgba(255,255,255,.92);padding:4px 10px;border-radius:8px}
+.view h3 span{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.view svg{display:block;width:100%;height:440px}
+.bar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding:10px 14px;
+  font-size:13px;color:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap}.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.btn{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;color:var(--fg);border-radius:9px;padding:8px 14px;cursor:pointer}
+.btn.primary{background:#1d4ed8;border-color:#1d4ed8;color:#fff}.btn:disabled{opacity:.45;cursor:not-allowed}
+.ai{position:relative;margin:18px 0 0 6px;padding:20px 16px 14px;border-radius:18px;background:#e9eef4;border:1px solid #dbe3ec}
+.ai .badge2{position:absolute;top:-16px;left:-10px;width:42px;height:42px;border-radius:50%;background:#f8fafc;border:5px solid #dbe3ec;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.ai .grid{display:flex;gap:12px;flex-wrap:wrap}.ai .box{background:#fff;border-radius:14px;padding:14px 16px;min-width:0}
+.ai .main{flex:3 1 460px}.ai .cmp{flex:2 1 320px}
+.ai h4{margin:0 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ai .judul{font-weight:600;font-size:16px;margin:0 0 8px}.ai p{margin:0 0 6px}
+.ai .untung{color:var(--ok);font-weight:600}.ai .note{font-size:12px;color:var(--muted);margin:10px 0 0}
+.row{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;margin:6px 0;font-size:14px}
+.row .track{height:12px;border-radius:6px;background:#eef2f7;overflow:hidden}.row .fill{height:100%;background:#0f172a;border-radius:6px}
+.row.best .fill{background:#15803d}.row.now .name{font-weight:700}.row.off{color:var(--muted)}.row.off .fill{background:#cbd5e1}
+.row .w{text-align:right;font-variant-numeric:tabular-nums}.off-note{font-size:12px;color:var(--muted);margin:-2px 0 6px 160px}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}.hint{font-size:13px;color:var(--muted)}
+.done{margin:12px 0 0;padding:10px 14px;border-radius:10px;background:#ecfdf5;border:1px solid #a7f3d0}
+.dlg{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-start;justify-content:center;padding-top:80px}
+.dlg.open{display:flex}.dlg .card{background:#fff;border-radius:14px;max-width:560px;width:calc(100% - 32px);padding:18px 20px;
+  box-shadow:0 20px 50px rgba(15,23,42,.25)}
+.dlg h2{margin:0 0 8px;font-size:18px}.dlg ul{margin:8px 0 14px 18px;padding:0}.dlg li{margin:4px 0}
+.dlg .warn{color:var(--bad);font-weight:600}
+#err{color:var(--bad);font-size:13px;min-height:1em;margin-top:6px}
+@media (max-width:700px){.view svg{height:340px}.row{grid-template-columns:110px 1fr 60px}.off-note{margin-left:120px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>Rangkaian panel surya <span id="demo" class="badge" hidden>Mode demo</span></h1>
+      <p id="now" class="now">Memuat data</p>
+    </div>
+    <div id="meta" class="meta"></div>
+  </div>
+  <div class="stage">
+    <div id="views" class="views"></div>
+    <div class="bar">
+      <span id="legend" class="legend"></span>
+      <span><button id="pratinjau" class="btn" hidden>Lihat rangkaian saran</button>
+            <button id="satu" class="btn" hidden>Tampilkan rangkaian sekarang saja</button></span>
+    </div>
+  </div>
+  <div id="err" role="status"></div>
+  <div id="analisis"></div>
+</div>
+<div id="dlg" class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgjudul">
+  <div class="card">
+    <h2 id="dlgjudul">Ubah rangkaian?</h2>
+    <p id="dlgisi"></p>
+    <p class="warn">Yang mungkin terjadi:</p>
+    <ul id="dlgrisiko"></ul>
+    <div class="acts"><button id="dlgya" class="btn primary">Ya, ubah rangkaian</button><button id="dlgbatal" class="btn">Batal</button></div>
+  </div>
+</div>
+<script src="/rangkaian/rangkaian.js"></script>
+</body>
+</html>

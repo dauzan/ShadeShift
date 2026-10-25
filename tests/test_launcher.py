@@ -52,7 +52,9 @@ def test_demo_starts_everything_and_stops_in_safe_order(tmp_path):
         assert _wait(lambda: any(d["id"] == "demo-01" and d["online"] for d in _get(f"{api}/devices")), 120), "demo not up"
         assert _wait(lambda: urllib.request.urlopen(f"http://127.0.0.1:{dash_port}/_stcore/health", timeout=2).status == 200, 90)
         assert len(_get(f"{api}/sweeps?source=lab&limit=1000")) == 120          # lab data imported once
-        cid = _post(f"{api}/devices/demo-01/commands", {"kind": "action", "command": "auto_select"})["id"]
+        # monitoring started by itself (consumer view, CONTRACT §19); a measurement on request is served by it
+        assert _wait(lambda: (next(d for d in _get(f"{api}/devices") if d["id"] == "demo-01")["state"].get("monitor") or {}).get("on"), 60)
+        cid = _post(f"{api}/devices/demo-01/commands", {"kind": "action", "command": "measure_now"})["id"]
         done = _wait(lambda: next((c for c in _get(f"{api}/devices/demo-01/commands") if c["id"] == cid
                                    and c["status"] in ("done", "failed")), None), 60)
         assert done["status"] == "done"

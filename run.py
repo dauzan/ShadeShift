@@ -1,4 +1,4 @@
-"""ShadeShift launcher: one entry point for every part of the local system (CONTRACT.md §1.1).
+"""ShadeShift launcher: one entry point for every part of the local system (docs/CONTRACT.md §1.1).
 
     python run.py demo          everything without hardware: server + emulated ESP32 + dashboard, opens the browser
     python run.py demo --scenario        ... and play the default shading scenario (or --scenario kilat)
@@ -51,7 +51,8 @@ def dashboard_command(settings):
     return [sys.executable, "-m", "streamlit", "run", str(ROOT / "dasbor" / "app.py"),
             "--server.address", DASHBOARD_HOST, "--server.port", str(settings.dashboard_port),
             "--server.headless", "true", "--server.showEmailPrompt", "false",
-            "--browser.gatherUsageStats", "false", "--client.toolbarMode", "viewer"]
+            "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal",
+            "--client.showErrorDetails", "type"]
 
 
 def cmd_dashboard(settings, args):

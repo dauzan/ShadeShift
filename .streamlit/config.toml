@@ -7,8 +7,10 @@
 gatherUsageStats = false
 
 [client]
-# Hides developer options and the "Deploy" (Streamlit Community Cloud) button.
-toolbarMode = "viewer"
+# Only menu items the app adds (none): no framework menu, About dialog or Deploy button on the page.
+toolbarMode = "minimal"
+# Uncaught errors show their type and message only, no framework stack trace.
+showErrorDetails = "type"
 
 [server]
 # No automatic browser opening and no first-run email prompt.
@@ -17,3 +19,12 @@ showEmailPrompt = false
 # Only this laptop can open the dashboard. The dashboard can switch relays, so never expose it on the network.
 address = "127.0.0.1"
 port = 8501
+
+[theme]
+# White, clean, professional (consumer view); the same on every computer, whatever its dark-mode setting.
+base = "light"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F8FAFC"
+textColor = "#0F172A"
+primaryColor = "#1D4ED8"
+font = "sans serif"

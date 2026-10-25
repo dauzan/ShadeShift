@@ -26,7 +26,10 @@ for d in U.get("/devices"):
                  "online": "ya" if d["online"] else "tidak", "sambungan": d.get("transport"), "terakhir": d["last_seen"][:19],
                  "firmware": d.get("firmware") or "-",
                  "AI di ESP32": "-" if d["kind"] != "esp32" else
-                                ("ya, bobot sama" if esp.get("weights_match") else "BOBOT BERBEDA") if esp else "tidak (firmware v2)",
+                                "tidak (firmware v2 asli, tanpa INFO)" if not esp else
+                                f"tidak (firmware {esp.get('fw')}, pemilih di laptop)" if not esp.get("weights") else
+                                "ya, bobot sama" if esp.get("weights_match") else "BOBOT BERBEDA",
+                 "fitur": ", ".join(esp.get("features") or []) or "-",
                  "AI di gateway": gw.get("runtime", "-"), "diputuskan oleh": U.label_keputusan(gw.get("decided_by")),
                  "antrean belum terkirim": stt.get("outbox_pending"), "galat": stt.get("last_error") or ""})
 if rows:

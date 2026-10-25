@@ -6,7 +6,7 @@
 /firmware/** -text
 /rangkaian/** -text
 /foto/** -text
-/UNTUK_DAUZAN.md -text
+/docs/team/UNTUK_DAUZAN.md -text
 *.csv -text
 
 # Binary artifacts

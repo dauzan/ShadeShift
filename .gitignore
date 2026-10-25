@@ -14,9 +14,6 @@ __pycache__/
 # Local configuration (copy .env.example to .env)
 /.env
 
-# The original zip stays on disk but not in git (36 MB); docs/before/ holds its extracted content
-/SHADESHIFT_untuk_Dauzan.zip
-
 # Large simulation CSVs (~75 MB, research only). Restore with: python tools/restore_from_before.py --research-data
 /SHADESHIFT_ML/data/sim_acak.csv
 /SHADESHIFT_ML/data/sim_acak_besar.csv

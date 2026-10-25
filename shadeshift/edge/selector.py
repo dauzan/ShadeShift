@@ -1,4 +1,4 @@
-"""Topology selector (pemilih) for the edge gateway and the server (CONTRACT.md §4).
+"""Topology selector (pemilih) for the edge gateway and the server (docs/CONTRACT.md §4).
 
 Feature extraction is port_c.py, the float32 replica of pemilih.h (verified equal to the C code on 38/38 lab
 curves). The weights come from pemilih_bobot.h, the single source of truth that is also compiled into the ESP32

@@ -1,4 +1,4 @@
-"""Build models/pemilih.onnx from SHADESHIFT_ML/edge_ai/pemilih/pemilih_bobot.h (CONTRACT.md §4).
+"""Build models/pemilih.onnx from SHADESHIFT_ML/edge_ai/pemilih/pemilih_bobot.h (docs/CONTRACT.md §4).
 
 The ONNX graph is the exact math of pemilih_putuskan() in pemilih.h:
     scores = bias + coef · ((features - mean) / scale)      label = argmax(scores)   (0 = 4S, 1 = 2S2P, 2 = TCT)

@@ -1,4 +1,4 @@
-"""Demo mode (CONTRACT.md §6.4, §8): play a shading scenario on the emulated ESP32.
+"""Demo mode (docs/CONTRACT.md §6.4, §8): play a shading scenario on the emulated ESP32.
 
 A scenario is a timeline of lab conditions. The player changes the emulated condition at each step and runs the normal
 auto mode (trigger + hold rule), so the edge AI reacts to the new shading exactly as it would with the real device.

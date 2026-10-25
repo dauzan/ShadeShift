@@ -3,8 +3,9 @@ Utas pembaca mengumpulkan log, mengurai setiap sapuan (# MULAI ... # SELESAI, fo
 mengukur waktu pindah susunan dan waktu sapuan, dan memberi tahu pengamat (gateway) tiap baris dan tiap sapuan.
 Perintah dikirim apa adanya; perpindahan susunan tetap lewat urutan aman firmware."""
 import os, re, time, random, threading, collections, queue
-from shadeshift import inti
+from shadeshift import inti, stability
 
+PANEL_TUNGGAL = ("A", "B", "C", "D")              # sapuan satu panel (firmware 3.2)
 T_PINDAH_S, T_SAPU_S = 0.65, 3.0                 # perkiraan dari tunda firmware (pindah ~0,61 s; sapuan ~3-4 s), belum diukur
 
 
@@ -66,7 +67,19 @@ class ESPTiruan:
 
     def _jalankan(self, baris):
         cmd, _, arg = baris.partition(" "); cmd = cmd.upper()
-        if cmd in inti.TOPO:
+        if cmd in PANEL_TUNGGAL:
+            # Rekaman lab hanya punya 4 topologi. Panel tunggal dihitung dari kembaran lampu lab untuk kondisi yang sama,
+            # dan tiap sapuannya membawa baris '# tiruan model=kembaran' (sumber tetap 'demo'). Tanpa kembaran: tolak.
+            time.sleep(T_PINDAH_S * self.lambat)
+            kurva = self._kurva_panel(cmd)
+            if kurva is None:
+                self.topo = None
+                self._cetak(f"# GAGAL: tiruan tidak punya data panel tunggal ({cmd}); rekaman lab hanya 4S/2S2P/TCT/4P",
+                            "# semua relai terbuka, MOSFET mati")
+                return
+            self.topo = cmd
+            self._cetak(f"# topologi {cmd}, Voc = {kurva[0][0]:.2f} V", f"# siap: {cmd}")
+        elif cmd in inti.TOPO:
             time.sleep(T_PINDAH_S * self.lambat)                              # perkiraan waktu pindah relai
             f = self._berkas(cmd)
             if f is None:
@@ -78,6 +91,8 @@ class ESPTiruan:
         elif cmd == "SWEEP":
             if self.topo is None: self._cetak("# GAGAL: pilih topologi dulu (4S/2S2P/TCT/4P)"); return
             time.sleep(T_SAPU_S * self.lambat)                                # sapuan nyata belum diukur
+            if self.topo in PANEL_TUNGGAL and self._berkas(self.topo) is None:     # no recording: the twin's curve
+                self._cetak(*self._blok_panel(self.topo, arg or "tanpa_label")); return
             f = self._berkas(self.topo)
             isi = [ln.rstrip("\r\n") for ln in open(f, encoding="utf8")]
             label = arg or "tanpa_label"
@@ -85,12 +100,34 @@ class ESPTiruan:
             isi.insert(1, f"# tiruan berkas={os.path.basename(f)}")
             self._cetak(*isi)
         elif cmd == "VOC":
-            v = inti.baca_berkas(self._berkas(self.topo)).voc if self.topo else 0.0
+            v = (0.0 if not self.topo else self._kurva_panel(self.topo)[0][0] if self.topo in PANEL_TUNGGAL
+                 else inti.baca_berkas(self._berkas(self.topo)).voc)
             self._cetak(f"# V_array = {v:.3f} V")
         elif cmd == "STATUS":
             self._cetak(f"# topologi={self.topo or '-'}, R0={'tutup' if self.topo else 'buka'}, cekVoc=ON (TIRUAN, kondisi {self.kondisi})")
         else:
             self._cetak(f"# (tiruan) perintah {cmd} diabaikan")
+
+    _tau = None                                  # transmisi paranet kembaran, dihitung sekali per proses
+
+    def _kurva_panel(self, panel):
+        """(V, I) satu panel dari kembaran untuk kondisi tiruan saat ini, atau None bila kembaran tidak tersedia."""
+        try:
+            if ESPTiruan._tau is None:
+                ESPTiruan._tau = inti.transmisi_paranet()
+            bay = inti.bayangan_kembaran(inti.bayangan_untuk_kondisi(self.kondisi), ESPTiruan._tau)
+            return inti.kurva_panel_kembaran(PANEL_TUNGGAL.index(panel), 1.0, bay)
+        except Exception:
+            return None
+
+    def _blok_panel(self, panel, label):
+        V, I = self._kurva_panel(panel)
+        P = V * I
+        k = int(P.argmax())
+        return ([f"# MULAI {label}", f"# tiruan model=kembaran (panel tunggal {panel}, kondisi {self.kondisi}; bukan rekaman)",
+                 f"# topologi={panel}, Voc={V[0]:.3f} V, N={len(V) - 1}", "V,I,P"]
+                + [f"{v:.4f},{i:.5f},{v * i:.4f}" for v, i in zip(V, I)]
+                + [f"# Pmax={P[k]:.4f} W, Vmp={V[k]:.3f} V, Imp={I[k]:.4f} A", "# SELESAI"])
 
     def readline(self):
         if not self.siap.wait(0.2): return b""
@@ -195,7 +232,7 @@ class Koneksi:
         with self._ev:
             self.log.append((t, f">>> {cmd}"))
             self.terakhir_dikirim[kata] = t
-            if kata in inti.TOPO: self._dikirim[f"TOPO:{kata}"] = t
+            if kata in inti.TOPO or kata in PANEL_TUNGGAL: self._dikirim[f"TOPO:{kata}"] = t
             elif kata == "SWEEP": self._dikirim["SWEEP"] = t
         for f in self.pengamat_baris: self._panggil(f, t, "tx", cmd)
         self.ser.write((cmd + "\n").encode())
@@ -225,6 +262,11 @@ class Koneksi:
             return False
         finally:
             with self._ev: self._pendengar.remove(q)
+
+    def buka_semua(self, batas=10.0):
+        """OFF sebagai langkah tugas (mis. jeda suhu di scan penuh), tanpa kait stop. Stop yang sudah terjadi tetap
+        menang: Dibatalkan. True bila alat mengonfirmasi semua relai terbuka."""
+        return self._tunggu(lambda s: s.startswith("# semua relai terbuka"), batas, kirim="OFF") is not None
 
     def lanjutkan(self):
         """Lepas kait stop: dipanggil saat pengguna memulai tugas atau perintah baru."""
@@ -320,17 +362,41 @@ class Koneksi:
         threading.Thread(target=jalan, daemon=True).start()
         return True
 
-    def mode_otomatis(self, W, henti: threading.Event, jeda_s=10.0, ambang=0.20, tahan_min_s=30.0, putuskan=None):
+    def mode_otomatis(self, W, henti: threading.Event, jeda_s=10.0, ambang=0.20, tahan_min_s=30.0, putuskan=None,
+                      stabil=None, saat_kunci=None):
         """Aturan dari UNTUK_DAUZAN.md: pilih susunan, lalu sapu ulang susunan aktif tiap jeda_s; jalankan pemilih lagi
         hanya bila Pmax berubah > ambang dari Pmax saat keputusan terakhir, dan pindah paling cepat setelah tahan_min_s
-        (anti bolak-balik). Sapuan memutus daya beberapa detik (alat hanya bisa mengukur daya dengan menyapu)."""
+        (anti bolak-balik). Sapuan memutus daya beberapa detik (alat hanya bisa mengukur daya dengan menyapu).
+        stabil = {"enabled", "window_s", "cv_pct"}: aturan stabilitas (shadeshift/stability.py, belum divalidasi): bila Pmax
+        sapuan pantau naik-turun > cv_pct %, kunci TCT dan jangan jalankan pemilih sampai stabil lagi.
+        saat_kunci(terkunci, keterangan) dipanggil saat kunci dipasang atau dilepas."""
         h = self.pilih_sekali(W, putuskan=putuskan); self.riwayat_pilih.append(h)
         acuan, t_pindah = h.get("pmax_pilihan"), time.time()
+        pakai_stabil = bool(stabil and stabil.get("enabled"))
+        bacaan, terkunci = [], False
         while not henti.is_set() and not self.henti.is_set() and self.hidup and acuan:
             if henti.wait(jeda_s) or self.henti.is_set(): break
             try: s = self.sapu(f"pantau_{time.strftime('%H%M%S')}_{self.topo}")
             except Dibatalkan: break
             if s is None: continue
+            if pakai_stabil:
+                sekarang = time.time()
+                bacaan = [(u, v) for u, v in bacaan if sekarang - u <= stabil["window_s"]] + [(sekarang, s.pmax)]
+                if stability.unstable(bacaan, sekarang, stabil["window_s"], stabil["cv_pct"]):
+                    if not terkunci:
+                        terkunci = True
+                        if saat_kunci: saat_kunci(True, f"daya naik-turun lebih dari {stabil['cv_pct']:g} % dalam {stabil['window_s']:g} s")
+                    if self.topo != "TCT":
+                        try: ok = self.pindah("TCT")
+                        except Dibatalkan: break
+                        if not ok: continue
+                        bacaan, t_pindah = [], time.time()
+                    acuan = s.pmax if s.topologi == "TCT" else acuan
+                    continue
+                if terkunci:
+                    terkunci, acuan = False, s.pmax
+                    if saat_kunci: saat_kunci(False, "daya stabil lagi")
+                    continue
             ubah = abs(s.pmax - acuan) / max(acuan, 1e-9)
             if ubah > ambang and time.time() - t_pindah >= tahan_min_s:
                 h = self.pilih_sekali(W, putuskan=putuskan, pemicu="auto_trigger"); h["pemicu_alasan"] = f"daya berubah {ubah * 100:.0f}%"

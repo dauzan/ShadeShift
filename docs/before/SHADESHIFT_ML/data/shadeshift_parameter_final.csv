@@ -1,5 +1,0 @@
-posisi,nama,sumber,n,R_s,R_sh,I_0,I_L,batas_aktif
-A,GH Solar GH10P-36,datasheet,1.0000,2.4598,702.50,1.9065e-11,0.60409,n=1
-B,ST Solar,datasheet,1.0000,2.9005,1255.19,1.9111e-11,0.59332,n=1
-C,GSE SP10-12P,datasheet,1.0000,0.7546,367.83,5.9660e-11,0.62798,n=1
-D,GSE SP10-12P (D),datasheet,1.0000,0.7546,367.83,5.9660e-11,0.62798,n=1

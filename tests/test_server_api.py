@@ -26,7 +26,7 @@ def sweep_body(device_id, run_uuid, name="V3_opak_4S_u1.csv", source="device", *
 
 def test_health_and_model(api):
     h = api.get("/api/v1/health").json()
-    assert h["status"] == "ok" and h["db"] == "ok" and h["schema_version"] == 1
+    assert h["status"] == "ok" and h["db"] == "ok" and h["schema_version"] == 5
     m = api.get("/api/v1/model").json()
     assert m["model_id"].startswith("pemilih-logreg-v1@") and m["classes"] == ["4S", "2S2P", "TCT"]
     assert len(m["feature_names"]) == 14 and "lab" in m["claims"] and "sim" in m["claims"]
@@ -151,6 +151,7 @@ def test_runs_start_and_end(api):
     api.post("/api/v1/devices/heartbeat", json={"device_id": "demo-09", "kind": "emulator", "run_uuid": run,
                                                 "state": {"connected": False, "ending": True}})
     assert api.get(f"/api/v1/runs/{r['id']}").json()["ended_at"] is not None
+    heartbeat(api, "esp32-01")                       # online = a heartbeat within the timeout, not since module start
     devices = {d["id"]: d for d in api.get("/api/v1/devices").json()}
     assert devices["esp32-01"]["online"] is True
     assert api.post("/api/v1/devices/heartbeat", json={"device_id": "lab", "kind": "esp32",

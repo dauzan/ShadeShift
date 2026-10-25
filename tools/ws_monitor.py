@@ -1,4 +1,4 @@
-"""Print the server's live WebSocket stream (CONTRACT.md §5.7), one line per message. Ctrl+C to stop.
+"""Print the server's live WebSocket stream (docs/CONTRACT.md §5.7), one line per message. Ctrl+C to stop.
 
 Usage:  python tools/ws_monitor.py [--device demo-01] [--raw]
 """

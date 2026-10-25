@@ -1,9 +1,0 @@
-sumber,sapuan,model,n,benar,akurasi_pct
-lab per pola (3 kelas),TCT,pohon d=2,30,3,10.0
-lab per pola (3 kelas),TCT,reg. logistik,30,0,0.0
-lab per pola (3 kelas),semua 4 sapuan,pohon d=2,30,11,37.0
-lab per pola (3 kelas),semua 4 sapuan,reg. logistik,30,17,57.0
-model simulasi (6 kelas),TCT,pohon d=6,30,3,10.0
-model simulasi (6 kelas),TCT,reg. logistik,30,3,10.0
-model simulasi (6 kelas),semua 4 sapuan,pohon d=6,30,1,3.0
-model simulasi (6 kelas),semua 4 sapuan,reg. logistik,30,1,3.0

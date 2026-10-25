@@ -1,4 +1,4 @@
-"""Uplink from the edge gateway to the local server (CONTRACT.md §5.2, §5.3).
+"""Uplink from the edge gateway to the local server (docs/CONTRACT.md §5.2, §5.3).
 
 Data (sweeps, decisions, evaluations, events, metrics, log lines) goes through an outbox: a small SQLite file in the
 data folder, sent in order by one thread. A network error or a 5xx keeps the item and retries with backoff, so nothing
@@ -17,7 +17,8 @@ import requests
 
 log = logging.getLogger("shadeshift.gateway")
 PATHS = {"sweep": "/ingest/sweeps", "decision": "/ingest/decisions", "evaluations": "/ingest/evaluations",
-         "events": "/ingest/events", "metrics": "/ingest/metrics", "log": "/ingest/log"}
+         "events": "/ingest/events", "metrics": "/ingest/metrics", "log": "/ingest/log",
+         "command_result": "/commands/{id}/result"}
 MAX_REGISTRATION_RETRIES = 30
 
 
@@ -86,7 +87,8 @@ class ServerLink:
                 continue
             oid, kind, body, attempts = row
             try:
-                r = self.http.post(self.base + PATHS[kind], data=body, timeout=15,
+                path = PATHS[kind].format(id=json.loads(body)["id"]) if kind == "command_result" else PATHS[kind]
+                r = self.http.post(self.base + path, data=body, timeout=15,
                                    headers={"Content-Type": "application/json"})
             except requests.RequestException as e:
                 self._offline(e)
@@ -148,10 +150,9 @@ class ServerLink:
         return r.json().get("commands", [])
 
     def command_result(self, command_id, status, result=None):
-        try:
-            self.http.post(f"{self.base}/commands/{command_id}/result", json={"status": status, "result": result}, timeout=10)
-        except requests.RequestException as e:
-            self._offline(e)
+        """Through the outbox, in order: a result never overtakes the sweeps the command produced (a full scan is
+        'done' on the server only after its sweeps are stored), and it survives a short server outage."""
+        self.enqueue("command_result", {"id": command_id, "status": status, "result": result})
 
     def get(self, path, **params):
         try:

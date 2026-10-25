@@ -1,4 +1,4 @@
-"""Firmware serial protocol (CONTRACT.md §3): sweep blocks, header values, v3 additions, completeness.
+"""Firmware serial protocol (docs/CONTRACT.md §3): sweep blocks, header values, v3 additions, completeness.
 
 Rows are kept exactly as received; only lines that are not three numeric fields are dropped, as in the lab
 scripts. Derived values (Pmax, Vmp, Imp, Voc, Isc) use the lab rules of shadeshift.inti.Sapuan (CONTRACT §6.3),
@@ -12,6 +12,8 @@ import numpy as np
 from shadeshift import inti
 
 TOPOLOGIES = ("4S", "2S2P", "TCT", "4P")
+PANELS = ("A", "B", "C", "D")              # single-panel sweeps (firmware 3.2): A top-left, B bottom-left, C top-right, D bottom-right
+SWEEP_TARGETS = TOPOLOGIES + PANELS
 _BAD_LABEL_CHARS = re.compile(r"[^A-Za-z0-9_.\-]")
 _NUM = r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?"
 _RE_HEADER = re.compile(rf"topologi=(?P<topo>[0-9A-Z?]+).*?Voc=(?P<voc>{_NUM})")
@@ -21,6 +23,7 @@ _RE_TRAILER = re.compile(rf"Pmax=(?P<pmax>{_NUM}).*?Vmp=(?P<vmp>{_NUM}).*?Imp=(?
 _RE_META = re.compile(r"#\s*meta\b(?P<rest>.*)")
 _RE_DECISION = re.compile(rf"pemilih=(?P<choice>4S|2S2P|TCT)(?:.*?skor=(?P<scores>[-+0-9.eE;]+))?(?:.*?t_us=(?P<t_us>{_NUM}))?")
 _RE_REPLAY = re.compile(r"#\s*tiruan\s+berkas=(?P<file>\S+)")       # written by the emulator (shadeshift.koneksi.ESPTiruan)
+_RE_LIGHT = re.compile(rf"#\s*cahaya(?P<akhir>_akhir)?=(?P<v>{_NUM})")   # LDR at A2 (firmware 3.2), relative volts
 
 
 def sanitize_label(label, default="tanpa_label"):
@@ -30,12 +33,12 @@ def sanitize_label(label, default="tanpa_label"):
 
 def topology_from_label(label):
     t = inti.topologi_dari_label(label or "")
-    return t if t in TOPOLOGIES else "?"
+    return t if t in SWEEP_TARGETS else "?"
 
 
 def condition_from_name(name):
-    """'V3_paranet65_TCT_u2(.csv)' -> ('V3_paranet65', 'TCT', 2); otherwise (None, None, None)."""
-    m = re.match(r"(.+)_(4S|2S2P|TCT|4P)_u(\d+)(?:\.csv)?$", name or "")
+    """'V3_paranet65_TCT_u2(.csv)' -> ('V3_paranet65', 'TCT', 2); panels too ('..._A_u1'); otherwise (None, None, None)."""
+    m = re.match(r"(.+)_(4S|2S2P|TCT|4P|A|B|C|D)_u(\d+)(?:\.csv)?$", name or "")
     return (m.group(1), m.group(2), int(m.group(3))) if m else (None, None, None)
 
 
@@ -91,6 +94,8 @@ def parse_block(lines, label=None):
                             "latency_us": float(dm.group("t_us")) if dm.group("t_us") else None}
             if (rm := _RE_REPLAY.match(s)):
                 replay_of = rm.group("file")
+            if (lm := _RE_LIGHT.match(s)):
+                header["light_end_v" if lm.group("akhir") else "light_v"] = float(lm.group("v"))
         else:
             p = s.split(",")
             if len(p) != 3 or p[0] == "V":
@@ -102,7 +107,7 @@ def parse_block(lines, label=None):
             v.append(vv)
             i.append(ii)
     label = sanitize_label(label)
-    topology = topo if topo in TOPOLOGIES else topology_from_label(label)
+    topology = topo if topo in SWEEP_TARGETS else topology_from_label(label)
     return ParsedSweep(label=label, topology=topology, v=v, i=i, header=header, device_meta=meta,
                        device_decision=decision, ended=ended if has_markers else None, raw_text="\n".join(lines),
                        replay_of=replay_of)

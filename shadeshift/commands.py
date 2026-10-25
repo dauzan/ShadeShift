@@ -1,13 +1,14 @@
-"""Command validation (CONTRACT.md §5.3): the raw-command allowlist and the gateway actions.
+"""Command validation (docs/CONTRACT.md §5.3): the raw-command allowlist and the gateway actions.
 
 Raw firmware commands that could bypass safety are refused here, so neither the dashboard nor any other
-API client can send them (ANALYSIS.md §7.1 F1, F2). Bench work uses the Arduino Serial Monitor instead.
+API client can send them (docs/ANALYSIS.md §7.1 F1, F2). Bench work uses the Arduino Serial Monitor instead.
 """
 import re
 
 from shadeshift import protocol
 
-RAW_EXACT = {"4S", "2S2P", "TCT", "4P", "OFF", "STOP", "STATUS", "VOC", "KAL", "SCAN", "BANTUAN", "INFO",
+RAW_EXACT = {"4S", "2S2P", "TCT", "4P", "A", "B", "C", "D", "OFF", "STOP", "STATUS", "VOC", "CAHAYA", "KAL", "SCAN",
+             "BANTUAN", "INFO", "DIAG",
              "CEKVOC 1", "PANTAU 0", "PANTAU 1", "TAHAN 0"}
 BLOCKED = {
     "TAHAN 1": "TAHAN 1 holds the MOSFET at the MPP (same heat hazard as DAC); only the gateway's auto mode may use it "
@@ -23,13 +24,16 @@ BLOCKED = {
 }
 BLOCKED_HINT = "Use the Arduino Serial Monitor for bench work, with the gateway stopped."
 
-ACTIONS = ("auto_select", "auto_mode_start", "auto_mode_stop", "audit_decision", "cycle", "stop",
-           "demo_condition", "demo_scenario_start", "demo_scenario_stop")
+ACTIONS = ("auto_select", "auto_mode_start", "auto_mode_stop", "audit_decision", "cycle", "full_scan", "stop",
+           "demo_condition", "demo_scenario_start", "demo_scenario_stop", "monitor_start", "monitor_stop",
+           "panel_check", "measure_now", "diagnose", "compare_wirings", "apply_wiring")
+APPLICABLE_WIRINGS = ("4S", "2S2P", "TCT")     # 4P gives about 20 V, below the 24 V the controller needs (CONTRACT §29)
+SERVER_MADE_ACTIONS = {"full_scan"}            # queued only by POST /sessions/{id}/scans, which records the labels
 
 
-TOPOLOGY_WORDS = {"4S", "2S2P", "TCT", "4P"}
-ACTUATING_RAW_WORDS = TOPOLOGY_WORDS | {"SWEEP", "VPANEL", "CEKVOC", "TAHAN"}
-STOP_ACTIONS = {"stop", "auto_mode_stop"}
+TOPOLOGY_WORDS = set(protocol.SWEEP_TARGETS)          # 4 topologies + single panels A-D
+ACTUATING_RAW_WORDS = TOPOLOGY_WORDS | {"SWEEP", "VPANEL", "CEKVOC", "TAHAN", "DIAG"}   # DIAG: firmware 3.2, honours OFF
+STOP_ACTIONS = {"stop", "auto_mode_stop", "monitor_stop"}
 
 
 class CommandError(ValueError):
@@ -97,7 +101,7 @@ def validate_action(name, params):
     if name not in ACTIONS:
         raise CommandError(f"unknown action {name!r}; known: {', '.join(ACTIONS)}")
     if name == "auto_mode_start":
-        out = {"interval_s": _number(params, "interval_s", 3, 600, None),
+        out = {"interval_s": _number(params, "interval_s", 3, 3600, None),
                "trigger_pct": _number(params, "trigger_pct", 5, 80, None),
                "hold_s": _number(params, "hold_s", 0, 3600, None)}
         st = params.get("stability")
@@ -105,15 +109,37 @@ def validate_action(name, params):
             if not isinstance(st, dict):
                 raise CommandError("stability must be an object")
             out["stability"] = {"enabled": bool(st.get("enabled", True)),
-                                "window_s": _number(st, "window_s", 5, 600, 30),
+                                "window_s": _number(st, "window_s", 5, 10800, None),    # None = the last 3 monitor sweeps
                                 "cv_pct": _number(st, "cv_pct", 1, 100, 10)}
         return {k: v for k, v in out.items() if v is not None}
+    if name == "monitor_start":
+        # Monitoring (CONTRACT §19): sweep the active wiring every array_interval_s (no switching) and check each panel
+        # alone every panel_interval_s (switches A-D, then back to the wiring); 0 = no panel checks.
+        panel = _number(params, "panel_interval_s", 0, 7200, 1800)
+        if panel and panel < 300:
+            raise CommandError("panel_interval_s must be 0 (off) or at least 300")
+        return {"array_interval_s": _number(params, "array_interval_s", 30, 3600, 300), "panel_interval_s": panel,
+                "wiring": params.get("wiring") if params.get("wiring") in protocol.TOPOLOGIES else None}
     if name == "cycle":
         topologies = params.get("topologies") or list(protocol.TOPOLOGIES)
-        if not isinstance(topologies, list) or not topologies or any(t not in protocol.TOPOLOGIES for t in topologies):
-            raise CommandError(f"topologies must be a non-empty subset of {list(protocol.TOPOLOGIES)}")
+        if not isinstance(topologies, list) or not topologies or any(t not in protocol.SWEEP_TARGETS for t in topologies):
+            raise CommandError(f"topologies must be a non-empty subset of {list(protocol.SWEEP_TARGETS)}")
         return {"label": protocol.sanitize_label(params.get("label"), default="siklus"),
                 "repeats": _number(params, "repeats", 1, 5, 1, int), "topologies": topologies}
+    if name == "full_scan":
+        scan_uuid, condition = str(params.get("scan_uuid", "")), str(params.get("condition", ""))
+        if not re.fullmatch(r"[0-9a-f\-]{8,64}", scan_uuid):
+            raise CommandError("scan_uuid must be the uuid of a scan")
+        if not re.fullmatch(r"[A-Za-z0-9_\-]{1,60}", condition):
+            raise CommandError("condition must look like LR1020_B2")
+        return {"scan_uuid": scan_uuid, "condition": condition, "rounds": _number(params, "rounds", 1, 60, 3, int),
+                "repeat_start": _number(params, "repeat_start", 1, 999, 1, int), "panels": bool(params.get("panels", False)),
+                "pause_s": _number(params, "pause_s", 0, 600, 0)}
+    if name == "apply_wiring":
+        target = params.get("target")
+        if target not in APPLICABLE_WIRINGS:
+            raise CommandError(f"target must be one of {', '.join(APPLICABLE_WIRINGS)} (4P is below the 24 V window)")
+        return {"target": target}
     if name == "demo_condition":
         cond = str(params.get("condition", ""))
         if not re.fullmatch(r"[A-Za-z0-9_]{1,40}", cond):

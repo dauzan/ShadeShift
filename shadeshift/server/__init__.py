@@ -1,1 +1,1 @@
-"""Local ShadeShift server: FastAPI + SQLite (CONTRACT.md §5, §10)."""
+"""Local ShadeShift server: FastAPI + SQLite (docs/CONTRACT.md §5, §10)."""

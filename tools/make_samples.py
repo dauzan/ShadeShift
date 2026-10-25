@@ -1,7 +1,7 @@
 """Write the sample upload files in samples/ from real lab curves (data_lab is only read).
 
 Usage:  python tools/make_samples.py
-The files exercise both accepted formats and the two most common rejections (CONTRACT.md §6).
+The files exercise both accepted formats and the two most common rejections (docs/CONTRACT.md §6).
 """
 import shutil
 import sys
@@ -16,7 +16,7 @@ OUT = ROOT / "samples"
 
 README = """# Sample upload files
 
-Use them on the dashboard's **Unggah CSV** page or with `POST /api/v1/uploads` (CONTRACT.md §5.5). Regenerate with
+Use them on the dashboard's **Unggah CSV** page or with `POST /api/v1/uploads` (docs/CONTRACT.md §5.5). Regenerate with
 `python tools/make_samples.py`. All curves are real halogen-lamp lab measurements from `SHADESHIFT_ML/data/data_lab/`
 (that folder is only read, never written).
 

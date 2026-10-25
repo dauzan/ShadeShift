@@ -1,4 +1,4 @@
-// Host (laptop) stand-in for the Arduino/ESP32 APIs used by firmware v3, plus a small hardware simulation.
+// Host (laptop) stand-in for the Arduino/ESP32 APIs used by the firmware, plus a small hardware simulation.
 // TEST ONLY: lets tests/test_firmware_v3.py compile the unchanged .ino with g++ and drive it with serial commands.
 // The "hardware" replays a REAL lab I-V curve per topology: the relays decide which topology is wired, the DAC code
 // moves the load point along that curve, and each ADS1115 read costs 1.16 ms (860 SPS) of simulated time.
@@ -54,6 +54,10 @@ class String {
   bool operator!=(const char* o) const { return s != o; }
   String operator+(const String& o) const { return String(s + o.s); }
   String operator+(const char* o) const { return String(s + o); }
+  String& operator+=(const String& o) { s += o.s; return *this; }
+  String& operator+=(const char* o) { s += o; return *this; }
+  String& operator+=(char c) { s += c; return *this; }
+  void reserve(unsigned n) { s.reserve(n); }
 };
 inline String operator+(const char* a, const String& b) { return String(std::string(a) + b.s); }
 inline bool isDigit(char c) { return c >= '0' && c <= '9'; }
@@ -67,6 +71,8 @@ inline uint64_t host_us() {
 inline unsigned long millis() { return (unsigned long)(sim_us() / 1000); }
 inline unsigned long micros() { return (unsigned long)(sim_us() + host_us()); }   // compute time is real host time
 void sim_delay_hook();
+// Script lines starting with "##" are simulation directives, applied when the simulated clock reaches their time.
+void sim_proses_direktif();
 inline void delay(unsigned long ms) { sim_us() += (uint64_t)ms * 1000; sim_delay_hook(); }
 
 // ---------------- serial: scripted input "<t_ms> <line>", output to stdout ----------------
@@ -76,7 +82,10 @@ inline std::deque<SimLine>& sim_input() { static std::deque<SimLine> q; return q
 struct SerialStub {
   void begin(long) {}
   void setTimeout(long) {}
-  int available() { return !sim_input().empty() && sim_input().front().t_ms * 1000 <= sim_us(); }
+  int available() {
+    sim_proses_direktif();
+    return !sim_input().empty() && sim_input().front().t_ms * 1000 <= sim_us();
+  }
   String readStringUntil(char) {
     if (!available()) return String();
     std::string l = sim_input().front().line; sim_input().pop_front();
@@ -96,22 +105,29 @@ struct SimKurva { std::vector<double> V, I; double voc = 0; bool ada = false; };
 struct SimHw {
   int pin_level[64];
   int dac = 0;
-  SimKurva kurva[4];
+  double cahaya = 1.5;          // LDR voltage at ADS1115 A2 (firmware 3.2), set by "##CAHAYA <V>" script lines
+  SimKurva kurva[8];            // 4S, 2S2P, TCT, 4P, then single panels A, B, C, D
   SimHw() { for (int& p : pin_level) p = HIGH; }
 };
 inline SimHw& hw() { static SimHw h; return h; }
 static const uint8_t SIM_PIN_R[11] = {13, 16, 17, 18, 19, 23, 25, 26, 27, 32, 33};
 inline bool sim_relai(int i) { return hw().pin_level[SIM_PIN_R[i]] == LOW; }      // relay modules are active LOW
-inline const char* SIM_NAMA[4] = {"4S", "2S2P", "TCT", "4P"};
+inline const char* SIM_NAMA[8] = {"4S", "2S2P", "TCT", "4P", "A", "B", "C", "D"};
 
-// Topology formed by R1..R10 (independent of the firmware's own table; from UNTUK_DAUZAN.md): -1 if none/mixed.
+// What R1..R10 connect (independent of the firmware's own table): the 4 topologies from UNTUK_DAUZAN.md, and one
+// panel alone between P and N from rangkaian/daftar_kabel.md (A: A+ fixed at P, R7 A- to N; B: R8 P-B+, R2 B- to N;
+// C: R3 P-C+, R9 C- to N; D: R10 P-D+, D- fixed at N). -1 if none or a mix.
 inline int sim_topologi() {
-  static const int peta[4][10] = {
+  static const int peta[8][10] = {
       {1, 0, 0, 1, 1, 0, 0, 0, 0, 0},   // 4S   = R1, R4, R5
       {1, 1, 1, 1, 0, 0, 0, 0, 0, 0},   // 2S2P = R1-R4
       {1, 1, 1, 1, 0, 1, 0, 0, 0, 0},   // TCT  = R1-R4, R6
-      {0, 1, 1, 0, 0, 0, 1, 1, 1, 1}};  // 4P   = R2, R3, R7-R10
-  for (int t = 0; t < 4; t++) {
+      {0, 1, 1, 0, 0, 0, 1, 1, 1, 1},   // 4P   = R2, R3, R7-R10
+      {0, 0, 0, 0, 0, 0, 1, 0, 0, 0},   // A    = R7
+      {0, 1, 0, 0, 0, 0, 0, 1, 0, 0},   // B    = R2, R8
+      {0, 0, 1, 0, 0, 0, 0, 0, 1, 0},   // C    = R3, R9
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 1}};  // D    = R10
+  for (int t = 0; t < 8; t++) {
     bool sama = true;
     for (int r = 1; r <= 10; r++) if (sim_relai(r) != (bool)peta[t][r - 1]) sama = false;
     if (sama) return t;

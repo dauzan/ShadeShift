@@ -1,4 +1,4 @@
-"""Live message fan-out for the WebSocket stream (CONTRACT.md §5.7).
+"""Live message fan-out for the WebSocket stream (docs/CONTRACT.md §5.7).
 
 Endpoints run in a thread pool, so publish() hands messages to the event loop with call_soon_threadsafe.
 Slow clients drop messages instead of blocking ingestion.

@@ -1,4 +1,4 @@
-"""Expected power from the lab-lamp digital twin (kembaran) for the server (CONTRACT.md §5.6).
+"""Expected power from the lab-lamp digital twin (kembaran) for the server (docs/CONTRACT.md §5.6).
 
 The twin is a simulation fitted on lab condition V1c (~8 % power error on 7 lab conditions, LAPORAN_JALUR_B.md).
 It needs pvlib. Without it the service reports itself unavailable and everything else keeps working.
@@ -74,3 +74,29 @@ class Twin:
         s = protocol.to_sapuan(v, i, topology=topology, header_voc=header_voc)
         with self._lock:
             return float(inti.kalibrasi_skala(s))
+
+    def whatif(self, scale, coverage, kind="solid"):
+        """What-if shading for the Digital Twin page (docs/CONTRACT.md §18).
+        coverage: {module 0-3: 36 numbers 0-1}, the share of each cell covered, in the twin's cell order (index =
+        row * 4 + column of the 4 x 9 cell grid of cocokkan_lampu.py). A covered cell keeps 2 % of its light under a
+        solid object (as the twin's 'opak') or the shade-cloth transmission (as 'paranet'). Same lamp model, parameters and
+        curve code as expected(); only the per-cell light differs. Returns the curves per topology and the modules' Pmax."""
+        if not self.available:
+            raise RuntimeError(self.reason)
+        import cocokkan_lampu as kl
+        if self._tau is None:
+            self._tau = inti.transmisi_paranet()
+        keep = 0.02 if kind == "solid" else self._tau
+        par = inti._par(float(scale))
+        G0, h, cx, cy, sig, T, ksh = par
+        ps = [{**kl.PARAMS[i], "R_sh_ref": kl.PARAMS[i]["R_sh_ref"] * ksh} for i in range(4)]
+        gs = kl.g_sel(par, {})
+        for m, cov in coverage.items():
+            c = np.clip(np.asarray(cov, float), 0.0, 1.0)
+            gs[m] = gs[m] * (1.0 - c * (1.0 - keep))
+        imax = max(g.max() for g in gs) / 1000 * 0.65
+        Ig = np.linspace(-0.3 * imax, 1.3 * imax, 3000)
+        mods = [kl.module_curve(ps[i], gs[i], Ig, T) for i in range(4)]
+        tp = kl.topologi(mods, imax)
+        module_pmax = [float(p) for p in inti.daya_harapan(dict(enumerate(mods))).values()]
+        return tp, module_pmax

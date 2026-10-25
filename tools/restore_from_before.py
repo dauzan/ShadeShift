@@ -1,7 +1,7 @@
 """Copy the original project tree from docs/before/ (the extracted zip) into the working tree.
 
 docs/before/ stays an untouched snapshot of SHADESHIFT_untuk_Dauzan.zip. This script copies the parts the
-working project needs (SHADESHIFT_ML/, firmware/, rangkaian/, foto/, UNTUK_DAUZAN.md) to the project root.
+working project needs (SHADESHIFT_ML/, firmware/, rangkaian/, foto/, and UNTUK_DAUZAN.md into docs/team/).
 
 - The six large simulation CSVs (~75 MB, research only) are skipped unless --research-data is given.
 - A file that already exists is skipped when it is byte-identical, and reported (never overwritten) when it differs.
@@ -17,6 +17,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BEFORE = ROOT / "docs" / "before"
 PARTS = ["SHADESHIFT_ML", "firmware", "rangkaian", "foto", "UNTUK_DAUZAN.md"]
+DESTINATION = {"UNTUK_DAUZAN.md": "docs/team/UNTUK_DAUZAN.md"}     # moved when the docs were reorganized (18 Oct)
+# Removed from the working tree on purpose (still in docs/before/): unused, broken or rejected.
+EXCLUDE = {
+    "SHADESHIFT_ML/cek_inti.py",                              # reads ../_arsip/..., which was never in the zip
+    "firmware/siklus_otomatis.py",                            # unreferenced; sends RELAI with panels connected
+    "SHADESHIFT_ML/edge_ai/kembaran_lab/cnn_diagnosis.pt",    # rejected CNN (13 % on lab data); pickle file
+    "SHADESHIFT_ML/hasil/pohon_d3_TCT.txt",                   # stale result from before the Voc bug fix
+    "firmware/shadeshift_firmware/shadeshift_firmware.ino",   # replaced by firmware 3.2 (one firmware since 20 Oct)
+    "firmware/CARA_PAKAI.md",                                 # replaced by the one guide for firmware 3.2
+}
 RESEARCH_CSVS = {
     "SHADESHIFT_ML/data/sim_acak.csv",
     "SHADESHIFT_ML/data/sim_acak_besar.csv",
@@ -33,11 +43,11 @@ def files_to_copy(research_data):
         items = [src] if src.is_file() else sorted(p for p in src.rglob("*") if p.is_file())
         for p in items:
             rel = p.relative_to(BEFORE).as_posix()
-            if "__pycache__" in rel:
+            if "__pycache__" in rel or rel in EXCLUDE:
                 continue
             if rel in RESEARCH_CSVS and not research_data:
                 continue
-            yield p, ROOT / rel, rel
+            yield p, ROOT / DESTINATION.get(rel, rel), rel
 
 
 def main():

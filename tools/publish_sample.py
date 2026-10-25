@@ -1,6 +1,6 @@
 """Test publisher: acts like a gateway and posts real lab sweeps to the server's ingestion API.
 
-It proves the ingestion path (CONTRACT.md §5.2) without any hardware. Everything it sends is labeled honestly:
+It proves the ingestion path (docs/CONTRACT.md §5.2) without any hardware. Everything it sends is labeled honestly:
 device kind 'emulator', source 'demo', and replay_of = the lab file that was replayed.
 
 Usage (with the server running:  python run.py server):

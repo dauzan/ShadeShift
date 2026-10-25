@@ -1,4 +1,4 @@
-"""Request bodies of the server API (CONTRACT.md §5). Responses are plain dicts built in app.py."""
+"""Request bodies of the server API (docs/CONTRACT.md §5). Responses are plain dicts built in app.py."""
 import re
 from typing import Literal
 
@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from shadeshift import protocol
 
 DEVICE_ID = r"^[A-Za-z0-9_.\-]{1,64}$"
-Topology = Literal["4S", "2S2P", "TCT", "4P", "?"]
+Topology = Literal["4S", "2S2P", "TCT", "4P", "A", "B", "C", "D", "?"]     # A-D: single-panel sweeps (firmware 3.2)
 Choice = Literal["4S", "2S2P", "TCT"]
 LiveSource = Literal["device", "demo"]
 Source = Literal["device", "demo", "upload", "lab"]
@@ -41,6 +41,8 @@ class Header(BaseModel):
     pmax: float | None = None
     vmp: float | None = None
     imp: float | None = None
+    light_v: float | None = Field(default=None, ge=-1, le=6)        # LDR at ADS1115 A2 before / after the sweep (relative)
+    light_end_v: float | None = Field(default=None, ge=-1, le=6)
 
 
 class Timing(BaseModel):
@@ -77,6 +79,7 @@ class SweepIn(BaseModel):
     replay_of: str | None = Field(default=None, max_length=200)
     complete: bool = True
     raw_text: str | None = Field(default=None, max_length=200_000)
+    scan_uuid: str | None = Field(default=None, max_length=64)      # sweep of a labeled full scan (CONTRACT §12)
 
     @field_validator("label")
     @classmethod
@@ -129,6 +132,9 @@ class EvaluationIn(BaseModel):
     decision_uuid: str | None = Field(default=None, max_length=64)
     device_id: str = Field(pattern=DEVICE_ID)
     pmax: dict[Choice, float]
+    pmax_4p: float | None = None
+    pmax_panels: dict[Literal["A", "B", "C", "D"], float] = {}     # single-panel sweeps of the audit (firmware 3.2)
+    mlpe_w: float | None = Field(default=None, gt=0)               # sum of the four single-panel Pmax
     sweep_uuids: list[str] = Field(default=[], max_length=10)
     best: Choice
     chosen: Choice
@@ -162,6 +168,17 @@ class HeartbeatIn(BaseModel):
     state: dict = {}
 
 
+class RangkaianIn(BaseModel):
+    """A wiring change a person approved on the Rekomendasi Rangkaian page (CONTRACT §29). 4P is never applied."""
+    target: Literal["4S", "2S2P", "TCT"]
+
+
+class PerawatanIn(BaseModel):
+    """A maintenance log entry from the owner (CONTRACT §28): the panels were cleaned, or a technician repaired them."""
+    jenis: Literal["bersih", "perbaikan"]
+    panel: Literal["A", "B", "C", "D"] | None = None
+
+
 class CommandIn(BaseModel):
     kind: Literal["raw", "action"]
     command: str = Field(min_length=1, max_length=64)
@@ -186,3 +203,81 @@ class LabImportIn(BaseModel):
 
 class CalibrateIn(BaseModel):
     sweep_id: int
+
+
+# ---------------- data-collection sessions (CONTRACT §12) ----------------
+Place = Literal["indoor_lamp", "outdoor_sun"]
+Diagnosis = Literal["normal", "partial_shading", "uniform_dimming", "bypass_open", "bypass_short", "series_resistance"]
+Module = Literal["A", "B", "C", "D"]
+
+
+class SessionIn(BaseModel):
+    device_id: str = Field(pattern=DEVICE_ID)
+    place: Place
+    sky: str | None = Field(default=None, max_length=80)
+    location: str | None = Field(default=None, max_length=200)
+    operator: str | None = Field(default=None, max_length=80)
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class ScanIn(BaseModel):
+    code: str = Field(min_length=2, max_length=4)
+    modules: str | None = Field(default=None, max_length=4)      # None = the catalog default for the code
+    diagnosis: Diagnosis | None = None                            # None = the catalog default (may stay empty)
+    dynamic: bool | None = None
+    rounds: int = Field(default=3, ge=1, le=60)
+    panels: bool = True
+    pause_s: float = Field(default=30, ge=0, le=600)
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class ScanUpdate(BaseModel):
+    """Labels can be corrected after the scan; the raw sweeps never change."""
+    diagnosis: Diagnosis | None = None
+    modules: str | None = Field(default=None, max_length=4)
+    note: str | None = Field(default=None, max_length=2000)
+    temps: dict[str, dict[Module, float | None]] | None = None   # {"<repeat>": {"A": 41.5, ...}} panel back, deg C
+
+    @field_validator("temps")
+    @classmethod
+    def plausible(cls, v):
+        for rep, row in (v or {}).items():
+            if not rep.isdigit():
+                raise ValueError("temps keys are repeat numbers, e.g. '1'")
+            if any(x is not None and not -20 <= x <= 120 for x in row.values()):
+                raise ValueError("temperatures must be between -20 and 120 deg C")
+        return v
+
+
+# ---------------- AI models on real data (CONTRACT §14) ----------------
+class TrainIn(BaseModel):
+    task: Literal["diagnosis", "selector", "pattern"]
+    kind: Literal["logreg", "tree"] = "logreg"
+    sources: list[Literal["real", "lab", "sim"]] = Field(default=["real", "lab"], min_length=1)
+    params: dict = {}                                  # logreg: {"C"}; tree: {"max_depth", "min_leaf"}
+    test_day: str | None = Field(default=None, max_length=10)
+    sim_n: int = Field(default=200, ge=20, le=1500)    # simulated rounds per class when "sim" is a source
+
+    @field_validator("params")
+    @classmethod
+    def known_params(cls, v):
+        allowed = {"C": (1e-3, 1e3), "max_depth": (1, 8), "min_leaf": (1, 50)}
+        for k, x in v.items():
+            if k not in allowed or not isinstance(x, (int, float)) or not allowed[k][0] <= x <= allowed[k][1]:
+                raise ValueError(f"params: {k} must be one of {sorted(allowed)} within {allowed.get(k)}")
+        return v
+
+
+# ---------------- Digital Twin what-if (CONTRACT §18) ----------------
+class WhatIfIn(BaseModel):
+    coverage: dict[Literal["A", "B", "C", "D"], list[float]] = {}   # per module: 36 cell shares 0-1, twin cell order
+    kind: Literal["solid", "cloth"] = "solid"                       # solid object (2 % light left) or shade cloth
+    scale: float | None = Field(default=None, ge=0.05, le=4.0)      # light scale; None = the calibrated setting
+
+    @field_validator("coverage")
+    @classmethod
+    def thirty_six_cells(cls, v):
+        for m, cells in v.items():
+            if len(cells) != 36 or any(not 0.0 <= c <= 1.0 for c in cells):
+                raise ValueError(f"coverage[{m}] must be 36 numbers between 0 and 1")
+        return v

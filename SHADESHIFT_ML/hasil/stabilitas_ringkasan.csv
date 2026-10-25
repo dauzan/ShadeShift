@@ -1,0 +1,433 @@
+jenis,ulang,kebijakan,jeda_s,pct_mlpe,peralihan,kunci_tct
+daun,0,tetap TCT,,91.59365868905121,0.0,0.0
+daun,0,ideal tiap detik,,77.9366227857145,,
+daun,0,mode otomatis (pemicu 20 %),10.0,69.30146547961057,2.0,0.0
+daun,0,mode otomatis + aturan stabilitas,10.0,68.93330451562332,0.0,9.0
+daun,0,mode otomatis (pemicu 20 %),60.0,83.07099040583016,1.0,0.0
+daun,0,mode otomatis + aturan stabilitas,60.0,86.44553409441019,0.0,3.0
+daun,0,mode otomatis (pemicu 20 %),120.0,87.46478203170915,1.0,0.0
+daun,0,mode otomatis + aturan stabilitas,120.0,88.9849320612505,0.0,2.0
+daun,0,mode otomatis (pemicu 20 %),300.0,89.70707136204886,0.0,0.0
+daun,0,mode otomatis + aturan stabilitas,300.0,89.70707136204886,0.0,0.0
+daun,0,mode otomatis (pemicu 20 %),600.0,90.84912526701574,0.0,0.0
+daun,0,mode otomatis + aturan stabilitas,600.0,90.84912526701574,0.0,0.0
+daun,1,tetap TCT,,85.34995725215857,0.0,0.0
+daun,1,ideal tiap detik,,77.43548601515865,,
+daun,1,mode otomatis (pemicu 20 %),10.0,68.57830770243277,1.0,0.0
+daun,1,mode otomatis + aturan stabilitas,10.0,64.96785124372781,0.0,16.0
+daun,1,mode otomatis (pemicu 20 %),60.0,84.86454145979869,1.0,0.0
+daun,1,mode otomatis + aturan stabilitas,60.0,84.86454145979869,1.0,0.0
+daun,1,mode otomatis (pemicu 20 %),120.0,82.89372027028477,0.0,0.0
+daun,1,mode otomatis + aturan stabilitas,120.0,82.89372027028477,0.0,1.0
+daun,1,mode otomatis (pemicu 20 %),300.0,85.20978585902449,1.0,0.0
+daun,1,mode otomatis + aturan stabilitas,300.0,85.20978585902449,1.0,0.0
+daun,1,mode otomatis (pemicu 20 %),600.0,84.61830800394937,0.0,0.0
+daun,1,mode otomatis + aturan stabilitas,600.0,84.61830800394937,0.0,0.0
+daun,2,tetap TCT,,96.1124079989197,0.0,0.0
+daun,2,ideal tiap detik,,93.6589129248855,,
+daun,2,mode otomatis (pemicu 20 %),10.0,69.23329303275564,0.0,0.0
+daun,2,mode otomatis + aturan stabilitas,10.0,73.18372713269484,0.0,9.0
+daun,2,mode otomatis (pemicu 20 %),60.0,90.34260632077779,0.0,0.0
+daun,2,mode otomatis + aturan stabilitas,60.0,91.08466483715154,0.0,2.0
+daun,2,mode otomatis (pemicu 20 %),120.0,92.63103139294068,0.0,0.0
+daun,2,mode otomatis + aturan stabilitas,120.0,93.33190078138209,0.0,1.0
+daun,2,mode otomatis (pemicu 20 %),300.0,94.81830829923148,0.0,0.0
+daun,2,mode otomatis + aturan stabilitas,300.0,94.81830829923148,0.0,0.0
+daun,2,mode otomatis (pemicu 20 %),600.0,95.24234631221144,0.0,0.0
+daun,2,mode otomatis + aturan stabilitas,600.0,95.24234631221144,0.0,0.0
+daun,3,tetap TCT,,94.84455748703931,0.0,0.0
+daun,3,ideal tiap detik,,92.50395558270812,,
+daun,3,mode otomatis (pemicu 20 %),10.0,69.5854476943793,0.0,0.0
+daun,3,mode otomatis + aturan stabilitas,10.0,69.50843017433661,2.0,8.0
+daun,3,mode otomatis (pemicu 20 %),60.0,88.12682277205059,0.0,0.0
+daun,3,mode otomatis + aturan stabilitas,60.0,90.02503700816187,0.0,1.0
+daun,3,mode otomatis (pemicu 20 %),120.0,91.36228173614296,0.0,0.0
+daun,3,mode otomatis + aturan stabilitas,120.0,92.06751312838801,0.0,1.0
+daun,3,mode otomatis (pemicu 20 %),300.0,93.61410047889055,0.0,0.0
+daun,3,mode otomatis + aturan stabilitas,300.0,93.61410047889055,0.0,1.0
+daun,3,mode otomatis (pemicu 20 %),600.0,94.0904079691072,0.0,0.0
+daun,3,mode otomatis + aturan stabilitas,600.0,94.0904079691072,0.0,0.0
+daun,4,tetap TCT,,94.95759154830927,0.0,0.0
+daun,4,ideal tiap detik,,93.17851238328385,,
+daun,4,mode otomatis (pemicu 20 %),10.0,67.90536382410164,0.0,0.0
+daun,4,mode otomatis + aturan stabilitas,10.0,72.79369423542951,0.0,10.0
+daun,4,mode otomatis (pemicu 20 %),60.0,90.27508081579286,0.0,0.0
+daun,4,mode otomatis + aturan stabilitas,60.0,90.27508081579286,0.0,0.0
+daun,4,mode otomatis (pemicu 20 %),120.0,91.53437845506534,0.0,0.0
+daun,4,mode otomatis + aturan stabilitas,120.0,92.26382249863937,0.0,1.0
+daun,4,mode otomatis (pemicu 20 %),300.0,92.90863665860823,0.0,0.0
+daun,4,mode otomatis + aturan stabilitas,300.0,92.90863665860823,0.0,0.0
+daun,4,mode otomatis (pemicu 20 %),600.0,94.20170708161434,0.0,0.0
+daun,4,mode otomatis + aturan stabilitas,600.0,94.20170708161434,0.0,0.0
+daun,5,tetap TCT,,94.53647952245306,0.0,0.0
+daun,5,ideal tiap detik,,93.55427879285303,,
+daun,5,mode otomatis (pemicu 20 %),10.0,68.52378030054257,0.0,0.0
+daun,5,mode otomatis + aturan stabilitas,10.0,72.35892541969565,0.0,12.0
+daun,5,mode otomatis (pemicu 20 %),60.0,88.26216191078767,0.0,0.0
+daun,5,mode otomatis + aturan stabilitas,60.0,87.74137767421043,0.0,2.0
+daun,5,mode otomatis (pemicu 20 %),120.0,91.85480072348763,0.0,0.0
+daun,5,mode otomatis + aturan stabilitas,120.0,91.85480072348763,0.0,2.0
+daun,5,mode otomatis (pemicu 20 %),300.0,93.22208031438215,0.0,0.0
+daun,5,mode otomatis + aturan stabilitas,300.0,93.22208031438215,0.0,0.0
+daun,5,mode otomatis (pemicu 20 %),600.0,93.72241552779944,0.0,0.0
+daun,5,mode otomatis + aturan stabilitas,600.0,93.72241552779944,0.0,0.0
+daun,6,tetap TCT,,96.08714550298171,0.0,0.0
+daun,6,ideal tiap detik,,95.34064327357919,,
+daun,6,mode otomatis (pemicu 20 %),10.0,71.27927666596042,0.0,0.0
+daun,6,mode otomatis + aturan stabilitas,10.0,71.02002059979824,0.0,5.0
+daun,6,mode otomatis (pemicu 20 %),60.0,90.63130527690537,0.0,0.0
+daun,6,mode otomatis + aturan stabilitas,60.0,90.63130527690537,0.0,1.0
+daun,6,mode otomatis (pemicu 20 %),120.0,92.11616561212173,0.0,0.0
+daun,6,mode otomatis + aturan stabilitas,120.0,92.11616561212173,0.0,0.0
+daun,6,mode otomatis (pemicu 20 %),300.0,94.25746096324836,0.0,0.0
+daun,6,mode otomatis + aturan stabilitas,300.0,94.25746096324836,0.0,0.0
+daun,6,mode otomatis (pemicu 20 %),600.0,94.74270716598335,0.0,0.0
+daun,6,mode otomatis + aturan stabilitas,600.0,94.74270716598335,0.0,0.0
+daun,7,tetap TCT,,93.62064658496524,0.0,0.0
+daun,7,ideal tiap detik,,86.97587821281785,,
+daun,7,mode otomatis (pemicu 20 %),10.0,66.51487601881905,2.0,0.0
+daun,7,mode otomatis + aturan stabilitas,10.0,70.98709385226783,0.0,13.0
+daun,7,mode otomatis (pemicu 20 %),60.0,87.26463030159606,0.0,0.0
+daun,7,mode otomatis + aturan stabilitas,60.0,88.3107283563091,0.0,2.0
+daun,7,mode otomatis (pemicu 20 %),120.0,90.51302104216232,0.0,0.0
+daun,7,mode otomatis + aturan stabilitas,120.0,91.01094222722372,0.0,1.0
+daun,7,mode otomatis (pemicu 20 %),300.0,91.94269748188879,0.0,0.0
+daun,7,mode otomatis + aturan stabilitas,300.0,91.94269748188879,0.0,0.0
+daun,7,mode otomatis (pemicu 20 %),600.0,92.8957911473532,0.0,0.0
+daun,7,mode otomatis + aturan stabilitas,600.0,92.8957911473532,0.0,0.0
+daun,8,tetap TCT,,89.44914031005331,0.0,0.0
+daun,8,ideal tiap detik,,75.63897129173525,,
+daun,8,mode otomatis (pemicu 20 %),10.0,64.53161691847609,3.0,0.0
+daun,8,mode otomatis + aturan stabilitas,10.0,66.55461798290007,1.0,12.0
+daun,8,mode otomatis (pemicu 20 %),60.0,82.58523568639295,1.0,0.0
+daun,8,mode otomatis + aturan stabilitas,60.0,84.19626500280918,0.0,4.0
+daun,8,mode otomatis (pemicu 20 %),120.0,86.17600725119648,1.0,0.0
+daun,8,mode otomatis + aturan stabilitas,120.0,87.0252445911094,0.0,2.0
+daun,8,mode otomatis (pemicu 20 %),300.0,88.22951231608005,0.0,0.0
+daun,8,mode otomatis + aturan stabilitas,300.0,88.22951231608005,0.0,0.0
+daun,8,mode otomatis (pemicu 20 %),600.0,88.6672114471314,0.0,0.0
+daun,8,mode otomatis + aturan stabilitas,600.0,88.6672114471314,0.0,0.0
+daun,9,tetap TCT,,95.4502094920627,0.0,0.0
+daun,9,ideal tiap detik,,93.63250220366459,,
+daun,9,mode otomatis (pemicu 20 %),10.0,69.79683636121,0.0,0.0
+daun,9,mode otomatis + aturan stabilitas,10.0,71.1171012763927,0.0,6.0
+daun,9,mode otomatis (pemicu 20 %),60.0,90.68630595066513,0.0,0.0
+daun,9,mode otomatis + aturan stabilitas,60.0,90.68630595066513,0.0,3.0
+daun,9,mode otomatis (pemicu 20 %),120.0,92.78812913423042,0.0,0.0
+daun,9,mode otomatis + aturan stabilitas,120.0,92.78812913423042,0.0,1.0
+daun,9,mode otomatis (pemicu 20 %),300.0,94.23218870155442,0.0,0.0
+daun,9,mode otomatis + aturan stabilitas,300.0,94.23218870155442,0.0,1.0
+daun,9,mode otomatis (pemicu 20 %),600.0,94.72246643283889,0.0,0.0
+daun,9,mode otomatis + aturan stabilitas,600.0,94.72246643283889,0.0,0.0
+daun,10,tetap TCT,,74.9539980018892,0.0,0.0
+daun,10,ideal tiap detik,,63.39481267101734,,
+daun,10,mode otomatis (pemicu 20 %),10.0,54.590681492038804,8.0,0.0
+daun,10,mode otomatis + aturan stabilitas,10.0,57.51931270477638,3.0,11.0
+daun,10,mode otomatis (pemicu 20 %),60.0,71.63961235866384,1.0,0.0
+daun,10,mode otomatis + aturan stabilitas,60.0,70.40638975773174,5.0,3.0
+daun,10,mode otomatis (pemicu 20 %),120.0,71.64318156617271,1.0,0.0
+daun,10,mode otomatis + aturan stabilitas,120.0,72.39866873544004,3.0,1.0
+daun,10,mode otomatis (pemicu 20 %),300.0,75.2768778033302,2.0,0.0
+daun,10,mode otomatis + aturan stabilitas,300.0,75.2768778033302,2.0,0.0
+daun,10,mode otomatis (pemicu 20 %),600.0,76.5439989696756,0.0,0.0
+daun,10,mode otomatis + aturan stabilitas,600.0,76.5439989696756,0.0,0.0
+daun,11,tetap TCT,,67.95039969028099,0.0,0.0
+daun,11,ideal tiap detik,,58.43454805326294,,
+daun,11,mode otomatis (pemicu 20 %),10.0,55.04386357897173,2.0,0.0
+daun,11,mode otomatis + aturan stabilitas,10.0,52.92590669746707,11.0,10.0
+daun,11,mode otomatis (pemicu 20 %),60.0,67.35248976655835,2.0,0.0
+daun,11,mode otomatis + aturan stabilitas,60.0,66.5728681200258,1.0,3.0
+daun,11,mode otomatis (pemicu 20 %),120.0,69.79495279201532,2.0,0.0
+daun,11,mode otomatis + aturan stabilitas,120.0,70.31766124035273,1.0,1.0
+daun,11,mode otomatis (pemicu 20 %),300.0,69.58551484475394,1.0,0.0
+daun,11,mode otomatis + aturan stabilitas,300.0,69.58551484475394,1.0,0.0
+daun,11,mode otomatis (pemicu 20 %),600.0,72.79474202812301,0.0,0.0
+daun,11,mode otomatis + aturan stabilitas,600.0,72.79474202812301,0.0,0.0
+bergerak,0,tetap TCT,,81.38352901647991,0.0,0.0
+bergerak,0,ideal tiap detik,,88.49514562020029,,
+bergerak,0,mode otomatis (pemicu 20 %),10.0,66.84145639661426,2.0,0.0
+bergerak,0,mode otomatis + aturan stabilitas,10.0,66.84145639661426,2.0,0.0
+bergerak,0,mode otomatis (pemicu 20 %),60.0,82.55069147513116,2.0,0.0
+bergerak,0,mode otomatis + aturan stabilitas,60.0,77.01504567867457,1.0,3.0
+bergerak,0,mode otomatis (pemicu 20 %),120.0,84.90130952036787,2.0,0.0
+bergerak,0,mode otomatis + aturan stabilitas,120.0,78.55847554436984,1.0,2.0
+bergerak,0,mode otomatis (pemicu 20 %),300.0,85.28337391522372,2.0,0.0
+bergerak,0,mode otomatis + aturan stabilitas,300.0,85.28337391522372,2.0,0.0
+bergerak,0,mode otomatis (pemicu 20 %),600.0,79.80879967412329,1.0,0.0
+bergerak,0,mode otomatis + aturan stabilitas,600.0,79.80879967412329,1.0,0.0
+bergerak,1,tetap TCT,,92.48143998681502,0.0,0.0
+bergerak,1,ideal tiap detik,,95.73356807065014,,
+bergerak,1,mode otomatis (pemicu 20 %),10.0,72.43081085233949,2.0,0.0
+bergerak,1,mode otomatis + aturan stabilitas,10.0,72.43081085233949,2.0,0.0
+bergerak,1,mode otomatis (pemicu 20 %),60.0,89.48471560998966,2.0,0.0
+bergerak,1,mode otomatis + aturan stabilitas,60.0,89.48471560998966,2.0,0.0
+bergerak,1,mode otomatis (pemicu 20 %),120.0,91.85647426119931,2.0,0.0
+bergerak,1,mode otomatis + aturan stabilitas,120.0,91.85647426119931,2.0,0.0
+bergerak,1,mode otomatis (pemicu 20 %),300.0,92.65675635167287,0.0,0.0
+bergerak,1,mode otomatis + aturan stabilitas,300.0,89.79179135345923,1.0,1.0
+bergerak,1,mode otomatis (pemicu 20 %),600.0,93.3314391800041,0.0,0.0
+bergerak,1,mode otomatis + aturan stabilitas,600.0,93.3314391800041,0.0,0.0
+bergerak,2,tetap TCT,,94.95256970983516,0.0,0.0
+bergerak,2,ideal tiap detik,,94.95256970983516,,
+bergerak,2,mode otomatis (pemicu 20 %),10.0,71.5941433414127,0.0,0.0
+bergerak,2,mode otomatis + aturan stabilitas,10.0,71.5941433414127,0.0,0.0
+bergerak,2,mode otomatis (pemicu 20 %),60.0,88.71090207652618,0.0,0.0
+bergerak,2,mode otomatis + aturan stabilitas,60.0,88.71090207652618,0.0,0.0
+bergerak,2,mode otomatis (pemicu 20 %),120.0,90.925171369478,0.0,0.0
+bergerak,2,mode otomatis + aturan stabilitas,120.0,91.41995208526616,0.0,1.0
+bergerak,2,mode otomatis (pemicu 20 %),300.0,92.91377334600588,0.0,0.0
+bergerak,2,mode otomatis + aturan stabilitas,300.0,92.91377334600588,0.0,1.0
+bergerak,2,mode otomatis (pemicu 20 %),600.0,93.38377504174747,0.0,0.0
+bergerak,2,mode otomatis + aturan stabilitas,600.0,93.38377504174747,0.0,0.0
+bergerak,3,tetap TCT,,95.56486521643673,0.0,0.0
+bergerak,3,ideal tiap detik,,95.43691215548364,,
+bergerak,3,mode otomatis (pemicu 20 %),10.0,71.83628382263691,1.0,0.0
+bergerak,3,mode otomatis + aturan stabilitas,10.0,71.83628382263691,1.0,0.0
+bergerak,3,mode otomatis (pemicu 20 %),60.0,89.05225704467907,1.0,0.0
+bergerak,3,mode otomatis + aturan stabilitas,60.0,89.05225704467907,1.0,0.0
+bergerak,3,mode otomatis (pemicu 20 %),120.0,90.65924163340047,1.0,0.0
+bergerak,3,mode otomatis + aturan stabilitas,120.0,91.20037293621608,1.0,1.0
+bergerak,3,mode otomatis (pemicu 20 %),300.0,91.60111274930561,1.0,0.0
+bergerak,3,mode otomatis + aturan stabilitas,300.0,91.60111274930561,1.0,0.0
+bergerak,3,mode otomatis (pemicu 20 %),600.0,92.09480052924103,1.0,0.0
+bergerak,3,mode otomatis + aturan stabilitas,600.0,92.09480052924103,1.0,0.0
+bergerak,4,tetap TCT,,75.71585810079905,0.0,0.0
+bergerak,4,ideal tiap detik,,87.4246926210987,,
+bergerak,4,mode otomatis (pemicu 20 %),10.0,65.8120236200094,1.0,0.0
+bergerak,4,mode otomatis + aturan stabilitas,10.0,65.8120236200094,1.0,0.0
+bergerak,4,mode otomatis (pemicu 20 %),60.0,82.57384390091343,1.0,0.0
+bergerak,4,mode otomatis + aturan stabilitas,60.0,82.57384390091343,1.0,0.0
+bergerak,4,mode otomatis (pemicu 20 %),120.0,84.41473125504571,1.0,0.0
+bergerak,4,mode otomatis + aturan stabilitas,120.0,73.31985814159455,0.0,1.0
+bergerak,4,mode otomatis (pemicu 20 %),300.0,84.43874948306875,1.0,0.0
+bergerak,4,mode otomatis + aturan stabilitas,300.0,84.43874948306875,1.0,0.0
+bergerak,4,mode otomatis (pemicu 20 %),600.0,85.05755677431175,1.0,0.0
+bergerak,4,mode otomatis + aturan stabilitas,600.0,85.05755677431175,1.0,0.0
+bergerak,5,tetap TCT,,73.02373284536907,0.0,0.0
+bergerak,5,ideal tiap detik,,83.8814655788513,,
+bergerak,5,mode otomatis (pemicu 20 %),10.0,63.51580216856275,2.0,0.0
+bergerak,5,mode otomatis + aturan stabilitas,10.0,63.51580216856275,2.0,0.0
+bergerak,5,mode otomatis (pemicu 20 %),60.0,78.42194343864865,2.0,0.0
+bergerak,5,mode otomatis + aturan stabilitas,60.0,68.2422329844039,1.0,1.0
+bergerak,5,mode otomatis (pemicu 20 %),120.0,80.41182973924668,2.0,0.0
+bergerak,5,mode otomatis + aturan stabilitas,120.0,80.41182973924668,2.0,0.0
+bergerak,5,mode otomatis (pemicu 20 %),300.0,82.73624294820748,0.0,0.0
+bergerak,5,mode otomatis + aturan stabilitas,300.0,76.75443805205146,1.0,1.0
+bergerak,5,mode otomatis (pemicu 20 %),600.0,83.17079755812811,0.0,0.0
+bergerak,5,mode otomatis + aturan stabilitas,600.0,83.17079755812811,0.0,0.0
+bergerak,6,tetap TCT,,91.50660721762668,0.0,0.0
+bergerak,6,ideal tiap detik,,95.10857506222268,,
+bergerak,6,mode otomatis (pemicu 20 %),10.0,71.70440768953186,1.0,0.0
+bergerak,6,mode otomatis + aturan stabilitas,10.0,71.70440768953186,1.0,0.0
+bergerak,6,mode otomatis (pemicu 20 %),60.0,86.20138542583537,0.0,0.0
+bergerak,6,mode otomatis + aturan stabilitas,60.0,86.20138542583537,0.0,0.0
+bergerak,6,mode otomatis (pemicu 20 %),120.0,90.27826098692185,1.0,0.0
+bergerak,6,mode otomatis + aturan stabilitas,120.0,90.27826098692185,1.0,0.0
+bergerak,6,mode otomatis (pemicu 20 %),300.0,93.13040124618227,1.0,0.0
+bergerak,6,mode otomatis + aturan stabilitas,300.0,90.18026598407212,0.0,1.0
+bergerak,6,mode otomatis (pemicu 20 %),600.0,90.6296672764671,0.0,0.0
+bergerak,6,mode otomatis + aturan stabilitas,600.0,90.6296672764671,0.0,0.0
+bergerak,7,tetap TCT,,98.35827860852545,0.0,0.0
+bergerak,7,ideal tiap detik,,98.19254869653149,,
+bergerak,7,mode otomatis (pemicu 20 %),10.0,74.46605252138401,0.0,0.0
+bergerak,7,mode otomatis + aturan stabilitas,10.0,74.46605252138401,0.0,0.0
+bergerak,7,mode otomatis (pemicu 20 %),60.0,92.25308461053918,0.0,0.0
+bergerak,7,mode otomatis + aturan stabilitas,60.0,92.25308461053918,0.0,0.0
+bergerak,7,mode otomatis (pemicu 20 %),120.0,94.4926655133069,0.0,0.0
+bergerak,7,mode otomatis + aturan stabilitas,120.0,94.91224397449646,0.0,1.0
+bergerak,7,mode otomatis (pemicu 20 %),300.0,96.39076663081183,0.0,0.0
+bergerak,7,mode otomatis + aturan stabilitas,300.0,96.93924013218252,0.0,1.0
+bergerak,7,mode otomatis (pemicu 20 %),600.0,97.42849895065886,0.0,0.0
+bergerak,7,mode otomatis + aturan stabilitas,600.0,97.42849895065886,0.0,0.0
+bergerak,8,tetap TCT,,89.73559000317832,0.0,0.0
+bergerak,8,ideal tiap detik,,92.58715662473985,,
+bergerak,8,mode otomatis (pemicu 20 %),10.0,69.79296445794634,2.0,0.0
+bergerak,8,mode otomatis + aturan stabilitas,10.0,69.79296445794634,2.0,0.0
+bergerak,8,mode otomatis (pemicu 20 %),60.0,85.89031803134655,2.0,0.0
+bergerak,8,mode otomatis + aturan stabilitas,60.0,85.89031803134655,2.0,0.0
+bergerak,8,mode otomatis (pemicu 20 %),120.0,87.81152630524328,2.0,0.0
+bergerak,8,mode otomatis + aturan stabilitas,120.0,86.25139599331298,1.0,1.0
+bergerak,8,mode otomatis (pemicu 20 %),300.0,88.91013829302655,0.0,0.0
+bergerak,8,mode otomatis + aturan stabilitas,300.0,88.91013829302655,0.0,0.0
+bergerak,8,mode otomatis (pemicu 20 %),600.0,89.35471286765433,0.0,0.0
+bergerak,8,mode otomatis + aturan stabilitas,600.0,89.35471286765433,0.0,0.0
+bergerak,9,tetap TCT,,87.032767888908,0.0,0.0
+bergerak,9,ideal tiap detik,,94.71854825812798,,
+bergerak,9,mode otomatis (pemicu 20 %),10.0,71.37583718453298,2.0,0.0
+bergerak,9,mode otomatis + aturan stabilitas,10.0,71.37583718453298,2.0,0.0
+bergerak,9,mode otomatis (pemicu 20 %),60.0,88.3297184801764,2.0,0.0
+bergerak,9,mode otomatis + aturan stabilitas,60.0,88.3297184801764,2.0,0.0
+bergerak,9,mode otomatis (pemicu 20 %),120.0,83.16927793164159,1.0,0.0
+bergerak,9,mode otomatis + aturan stabilitas,120.0,83.16927793164159,1.0,0.0
+bergerak,9,mode otomatis (pemicu 20 %),300.0,92.4541989328316,0.0,0.0
+bergerak,9,mode otomatis + aturan stabilitas,300.0,92.4541989328316,0.0,0.0
+bergerak,9,mode otomatis (pemicu 20 %),600.0,92.92287863624496,0.0,0.0
+bergerak,9,mode otomatis + aturan stabilitas,600.0,92.92287863624496,0.0,0.0
+bergerak,10,tetap TCT,,96.6924779772339,0.0,0.0
+bergerak,10,ideal tiap detik,,96.56752444921645,,
+bergerak,10,mode otomatis (pemicu 20 %),10.0,72.90523649687783,1.0,0.0
+bergerak,10,mode otomatis + aturan stabilitas,10.0,72.90523649687783,1.0,0.0
+bergerak,10,mode otomatis (pemicu 20 %),60.0,90.229366351434,1.0,0.0
+bergerak,10,mode otomatis + aturan stabilitas,60.0,90.229366351434,1.0,0.0
+bergerak,10,mode otomatis (pemicu 20 %),120.0,92.46402958962453,1.0,0.0
+bergerak,10,mode otomatis + aturan stabilitas,120.0,93.55803294125619,1.0,1.0
+bergerak,10,mode otomatis (pemicu 20 %),300.0,91.51307937048439,1.0,0.0
+bergerak,10,mode otomatis + aturan stabilitas,300.0,91.51307937048439,1.0,0.0
+bergerak,10,mode otomatis (pemicu 20 %),600.0,92.03233949213552,1.0,0.0
+bergerak,10,mode otomatis + aturan stabilitas,600.0,92.03233949213552,1.0,0.0
+bergerak,11,tetap TCT,,94.37312050969936,0.0,0.0
+bergerak,11,ideal tiap detik,,95.91633978255749,,
+bergerak,11,mode otomatis (pemicu 20 %),10.0,72.56373821113901,2.0,0.0
+bergerak,11,mode otomatis + aturan stabilitas,10.0,72.56373821113901,2.0,0.0
+bergerak,11,mode otomatis (pemicu 20 %),60.0,89.64015278763821,2.0,0.0
+bergerak,11,mode otomatis + aturan stabilitas,60.0,89.64015278763821,2.0,0.0
+bergerak,11,mode otomatis (pemicu 20 %),120.0,90.34438147412722,1.0,0.0
+bergerak,11,mode otomatis + aturan stabilitas,120.0,90.79691011104381,1.0,1.0
+bergerak,11,mode otomatis (pemicu 20 %),300.0,93.0561479700697,0.0,0.0
+bergerak,11,mode otomatis + aturan stabilitas,300.0,91.71390424014679,1.0,1.0
+bergerak,11,mode otomatis (pemicu 20 %),600.0,93.72057126681106,0.0,0.0
+bergerak,11,mode otomatis + aturan stabilitas,600.0,93.72057126681106,0.0,0.0
+campuran,0,tetap TCT,,75.3460675091536,0.0,0.0
+campuran,0,ideal tiap detik,,71.38157662789312,,
+campuran,0,mode otomatis (pemicu 20 %),10.0,56.35154759898609,10.0,0.0
+campuran,0,mode otomatis + aturan stabilitas,10.0,57.09462403871879,2.0,12.0
+campuran,0,mode otomatis (pemicu 20 %),60.0,70.9551583377418,4.0,0.0
+campuran,0,mode otomatis + aturan stabilitas,60.0,71.32637550025918,0.0,3.0
+campuran,0,mode otomatis (pemicu 20 %),120.0,74.73435938966495,2.0,0.0
+campuran,0,mode otomatis + aturan stabilitas,120.0,72.99943703943445,0.0,1.0
+campuran,0,mode otomatis (pemicu 20 %),300.0,77.23306039112404,2.0,0.0
+campuran,0,mode otomatis + aturan stabilitas,300.0,77.23306039112404,2.0,0.0
+campuran,0,mode otomatis (pemicu 20 %),600.0,77.74687404840287,1.0,0.0
+campuran,0,mode otomatis + aturan stabilitas,600.0,77.74687404840287,1.0,0.0
+campuran,1,tetap TCT,,92.68017768805844,0.0,0.0
+campuran,1,ideal tiap detik,,79.21905614170733,,
+campuran,1,mode otomatis (pemicu 20 %),10.0,69.19104168033934,1.0,0.0
+campuran,1,mode otomatis + aturan stabilitas,10.0,69.19104168033934,1.0,0.0
+campuran,1,mode otomatis (pemicu 20 %),60.0,86.31370435803404,1.0,0.0
+campuran,1,mode otomatis + aturan stabilitas,60.0,86.31370435803404,1.0,0.0
+campuran,1,mode otomatis (pemicu 20 %),120.0,86.95436845960043,1.0,0.0
+campuran,1,mode otomatis + aturan stabilitas,120.0,87.35615424900705,1.0,1.0
+campuran,1,mode otomatis (pemicu 20 %),300.0,88.4442487879094,1.0,0.0
+campuran,1,mode otomatis + aturan stabilitas,300.0,88.4442487879094,1.0,0.0
+campuran,1,mode otomatis (pemicu 20 %),600.0,88.97489049601091,1.0,0.0
+campuran,1,mode otomatis + aturan stabilitas,600.0,88.97489049601091,1.0,0.0
+campuran,2,tetap TCT,,69.7544891046055,0.0,0.0
+campuran,2,ideal tiap detik,,64.46787238188098,,
+campuran,2,mode otomatis (pemicu 20 %),10.0,55.15484250339517,5.0,0.0
+campuran,2,mode otomatis + aturan stabilitas,10.0,52.55459751857621,0.0,5.0
+campuran,2,mode otomatis (pemicu 20 %),60.0,68.3301089065198,3.0,0.0
+campuran,2,mode otomatis + aturan stabilitas,60.0,65.38098094486746,0.0,2.0
+campuran,2,mode otomatis (pemicu 20 %),120.0,71.94218410512896,1.0,0.0
+campuran,2,mode otomatis + aturan stabilitas,120.0,64.30797984707989,2.0,1.0
+campuran,2,mode otomatis (pemicu 20 %),300.0,73.35908303291556,1.0,0.0
+campuran,2,mode otomatis + aturan stabilitas,300.0,68.4856701483315,0.0,1.0
+campuran,2,mode otomatis (pemicu 20 %),600.0,68.76318843923211,0.0,0.0
+campuran,2,mode otomatis + aturan stabilitas,600.0,68.76318843923211,0.0,0.0
+campuran,3,tetap TCT,,91.84273729258412,0.0,0.0
+campuran,3,ideal tiap detik,,83.42315282450292,,
+campuran,3,mode otomatis (pemicu 20 %),10.0,70.45840463320897,0.0,0.0
+campuran,3,mode otomatis + aturan stabilitas,10.0,69.91083999560492,0.0,2.0
+campuran,3,mode otomatis (pemicu 20 %),60.0,87.22218950581203,0.0,0.0
+campuran,3,mode otomatis + aturan stabilitas,60.0,87.22218950581203,0.0,0.0
+campuran,3,mode otomatis (pemicu 20 %),120.0,89.23407839489822,0.0,0.0
+campuran,3,mode otomatis + aturan stabilitas,120.0,89.23407839489822,0.0,1.0
+campuran,3,mode otomatis (pemicu 20 %),300.0,90.60209238800007,0.0,0.0
+campuran,3,mode otomatis + aturan stabilitas,300.0,90.60209238800007,0.0,0.0
+campuran,3,mode otomatis (pemicu 20 %),600.0,91.07413351473936,0.0,0.0
+campuran,3,mode otomatis + aturan stabilitas,600.0,91.07413351473936,0.0,0.0
+campuran,4,tetap TCT,,82.4348273232886,0.0,0.0
+campuran,4,ideal tiap detik,,74.03409178234926,,
+campuran,4,mode otomatis (pemicu 20 %),10.0,56.946915994106675,7.0,0.0
+campuran,4,mode otomatis + aturan stabilitas,10.0,61.30834394505993,4.0,8.0
+campuran,4,mode otomatis (pemicu 20 %),60.0,75.13219541213668,3.0,0.0
+campuran,4,mode otomatis + aturan stabilitas,60.0,74.76637884670596,2.0,2.0
+campuran,4,mode otomatis (pemicu 20 %),120.0,74.91620326988068,1.0,0.0
+campuran,4,mode otomatis + aturan stabilitas,120.0,79.95826128050761,0.0,2.0
+campuran,4,mode otomatis (pemicu 20 %),300.0,80.68392436803846,0.0,0.0
+campuran,4,mode otomatis + aturan stabilitas,300.0,81.0954917692555,0.0,1.0
+campuran,4,mode otomatis (pemicu 20 %),600.0,80.90457187730519,0.0,0.0
+campuran,4,mode otomatis + aturan stabilitas,600.0,80.90457187730519,0.0,0.0
+campuran,5,tetap TCT,,81.91784548856756,0.0,0.0
+campuran,5,ideal tiap detik,,78.14339750188395,,
+campuran,5,mode otomatis (pemicu 20 %),10.0,61.10770400181551,1.0,0.0
+campuran,5,mode otomatis + aturan stabilitas,10.0,63.14907440863632,6.0,8.0
+campuran,5,mode otomatis (pemicu 20 %),60.0,81.89467932953615,1.0,0.0
+campuran,5,mode otomatis + aturan stabilitas,60.0,76.8288681917239,0.0,2.0
+campuran,5,mode otomatis (pemicu 20 %),120.0,82.45097637363152,1.0,0.0
+campuran,5,mode otomatis + aturan stabilitas,120.0,78.7449956238048,0.0,2.0
+campuran,5,mode otomatis (pemicu 20 %),300.0,84.7435329512956,1.0,0.0
+campuran,5,mode otomatis + aturan stabilitas,300.0,79.93258468642279,0.0,1.0
+campuran,5,mode otomatis (pemicu 20 %),600.0,81.02430404333035,0.0,0.0
+campuran,5,mode otomatis + aturan stabilitas,600.0,81.02430404333035,0.0,0.0
+campuran,6,tetap TCT,,66.73933442486445,0.0,0.0
+campuran,6,ideal tiap detik,,69.41942630940407,,
+campuran,6,mode otomatis (pemicu 20 %),10.0,58.397146839473976,2.0,0.0
+campuran,6,mode otomatis + aturan stabilitas,10.0,52.181381734794655,3.0,6.0
+campuran,6,mode otomatis (pemicu 20 %),60.0,74.48396085814828,0.0,0.0
+campuran,6,mode otomatis + aturan stabilitas,60.0,68.74669206522492,3.0,3.0
+campuran,6,mode otomatis (pemicu 20 %),120.0,75.85020185536115,0.0,0.0
+campuran,6,mode otomatis + aturan stabilitas,120.0,66.48822794650086,1.0,2.0
+campuran,6,mode otomatis (pemicu 20 %),300.0,77.38252048371325,0.0,0.0
+campuran,6,mode otomatis + aturan stabilitas,300.0,73.04118349525136,1.0,1.0
+campuran,6,mode otomatis (pemicu 20 %),600.0,77.78233881911537,0.0,0.0
+campuran,6,mode otomatis + aturan stabilitas,600.0,77.78233881911537,0.0,0.0
+campuran,7,tetap TCT,,94.60508730567577,0.0,0.0
+campuran,7,ideal tiap detik,,90.18794223443982,,
+campuran,7,mode otomatis (pemicu 20 %),10.0,67.53532327049004,0.0,0.0
+campuran,7,mode otomatis + aturan stabilitas,10.0,70.49070389744087,0.0,8.0
+campuran,7,mode otomatis (pemicu 20 %),60.0,85.74583207604223,2.0,0.0
+campuran,7,mode otomatis + aturan stabilitas,60.0,88.82024625272501,0.0,3.0
+campuran,7,mode otomatis (pemicu 20 %),120.0,88.58438359245694,2.0,0.0
+campuran,7,mode otomatis + aturan stabilitas,120.0,91.08514471343055,0.0,1.0
+campuran,7,mode otomatis (pemicu 20 %),300.0,91.88593540457087,0.0,0.0
+campuran,7,mode otomatis + aturan stabilitas,300.0,92.37171086266525,0.0,1.0
+campuran,7,mode otomatis (pemicu 20 %),600.0,92.85099130991833,0.0,0.0
+campuran,7,mode otomatis + aturan stabilitas,600.0,92.85099130991833,0.0,0.0
+campuran,8,tetap TCT,,77.00747549347264,0.0,0.0
+campuran,8,ideal tiap detik,,73.35082894877637,,
+campuran,8,mode otomatis (pemicu 20 %),10.0,59.720597016048835,4.0,0.0
+campuran,8,mode otomatis + aturan stabilitas,10.0,58.25411985635331,3.0,14.0
+campuran,8,mode otomatis (pemicu 20 %),60.0,76.42556860844951,2.0,0.0
+campuran,8,mode otomatis + aturan stabilitas,60.0,72.55696251086174,1.0,2.0
+campuran,8,mode otomatis (pemicu 20 %),120.0,75.55917731659417,2.0,0.0
+campuran,8,mode otomatis + aturan stabilitas,120.0,73.5748362336803,1.0,2.0
+campuran,8,mode otomatis (pemicu 20 %),300.0,80.53880698494977,0.0,0.0
+campuran,8,mode otomatis + aturan stabilitas,300.0,76.91443275580222,1.0,1.0
+campuran,8,mode otomatis (pemicu 20 %),600.0,81.13523031379395,0.0,0.0
+campuran,8,mode otomatis + aturan stabilitas,600.0,81.13523031379395,0.0,0.0
+campuran,9,tetap TCT,,80.94381352279336,0.0,0.0
+campuran,9,ideal tiap detik,,74.5963575833399,,
+campuran,9,mode otomatis (pemicu 20 %),10.0,56.54474321974875,2.0,0.0
+campuran,9,mode otomatis + aturan stabilitas,10.0,59.83361253230528,2.0,5.0
+campuran,9,mode otomatis (pemicu 20 %),60.0,72.96971335387443,2.0,0.0
+campuran,9,mode otomatis + aturan stabilitas,60.0,74.88130335081998,2.0,2.0
+campuran,9,mode otomatis (pemicu 20 %),120.0,74.81475925434495,2.0,0.0
+campuran,9,mode otomatis + aturan stabilitas,120.0,78.2320569110786,0.0,2.0
+campuran,9,mode otomatis (pemicu 20 %),300.0,78.66266545651096,0.0,0.0
+campuran,9,mode otomatis + aturan stabilitas,300.0,79.04161304535425,0.0,1.0
+campuran,9,mode otomatis (pemicu 20 %),600.0,79.44296342973173,0.0,0.0
+campuran,9,mode otomatis + aturan stabilitas,600.0,79.44296342973173,0.0,0.0
+campuran,10,tetap TCT,,90.13919938424897,0.0,0.0
+campuran,10,ideal tiap detik,,82.61847112276747,,
+campuran,10,mode otomatis (pemicu 20 %),10.0,68.07958967218116,1.0,0.0
+campuran,10,mode otomatis + aturan stabilitas,10.0,68.60449935917731,1.0,1.0
+campuran,10,mode otomatis (pemicu 20 %),60.0,83.89907155456908,1.0,0.0
+campuran,10,mode otomatis + aturan stabilitas,60.0,84.45693969183378,1.0,1.0
+campuran,10,mode otomatis (pemicu 20 %),120.0,86.16740615517404,1.0,0.0
+campuran,10,mode otomatis + aturan stabilitas,120.0,87.19787907918418,1.0,1.0
+campuran,10,mode otomatis (pemicu 20 %),300.0,83.68755093770277,1.0,0.0
+campuran,10,mode otomatis + aturan stabilitas,300.0,83.68755093770277,1.0,0.0
+campuran,10,mode otomatis (pemicu 20 %),600.0,84.10895452047956,1.0,0.0
+campuran,10,mode otomatis + aturan stabilitas,600.0,84.10895452047956,1.0,0.0
+campuran,11,tetap TCT,,67.27971945718862,0.0,0.0
+campuran,11,ideal tiap detik,,63.653343766599455,,
+campuran,11,mode otomatis (pemicu 20 %),10.0,54.58457623414053,2.0,0.0
+campuran,11,mode otomatis + aturan stabilitas,10.0,51.23479031535124,2.0,9.0
+campuran,11,mode otomatis (pemicu 20 %),60.0,68.23942977212333,2.0,0.0
+campuran,11,mode otomatis + aturan stabilitas,60.0,68.87347407691448,2.0,3.0
+campuran,11,mode otomatis (pemicu 20 %),120.0,62.988099630617775,2.0,0.0
+campuran,11,mode otomatis + aturan stabilitas,120.0,65.23170213435348,0.0,1.0
+campuran,11,mode otomatis (pemicu 20 %),300.0,66.29258765028958,2.0,0.0
+campuran,11,mode otomatis + aturan stabilitas,300.0,66.29258765028958,2.0,0.0
+campuran,11,mode otomatis (pemicu 20 %),600.0,66.59955827390101,0.0,0.0
+campuran,11,mode otomatis + aturan stabilitas,600.0,66.59955827390101,0.0,0.0

@@ -10,14 +10,14 @@ New here? Read **[START_HERE.md](START_HERE.md)** first.
 
 ```
  ESP32 + firmware        edge gateway (laptop)            local server (laptop)          dashboard (browser)
- sweeps I-V, switches    owns the USB port, parses,       FastAPI + SQLite database,     Streamlit, 5 pages,
+ sweeps I-V, switches    owns the USB port, parses,       FastAPI + SQLite database,     Streamlit, 10 pages,
  relays safely, runs  →  runs the AI (ONNX Runtime) as  → ingestion API, WebSocket,   →  live view, replay,
  the AI on the board     a cross-check, measures timing   commands, uploads, audit       CSV upload, audit, status
- (firmware v3)           USB serial 115200                http://127.0.0.1:8000          http://127.0.0.1:8501
+ (firmware 3.2)          USB serial 115200                http://127.0.0.1:8000          http://127.0.0.1:8501
 ```
 
 Without hardware, the gateway drives an **emulated ESP32** instead. It replays real lab curves and every value is labeled
-**DEMO**. Interfaces, ports and data shapes are defined in [CONTRACT.md](CONTRACT.md).
+**DEMO**. Interfaces, ports and data shapes are defined in [docs/CONTRACT.md](docs/CONTRACT.md).
 
 ## Quick start (Windows)
 
@@ -59,27 +59,23 @@ stream. `tools/make_samples.py` regenerates `samples/`. `python -m shadeshift.ed
 | `models/` | `pemilih.onnx`, generated from `SHADESHIFT_ML/edge_ai/pemilih/pemilih_bobot.h` |
 | `scenarios/` | Demo shading scenarios |
 | `samples/` | Example CSV files for the upload page (good and bad) |
-| `tests/` | Automated tests, including a host build of firmware v3 with simulated hardware |
-| `docs/before/` | Untouched copy of the original project zip |
+| `tests/` | Automated tests, including a host build of the firmware with simulated hardware |
+| `docs/` | Reference documents ([index](docs/README.md)) |
 | `data/` | Runtime database and gateway outbox (created on first run, not in git) |
 
 ## Documentation
 
 | File | For |
 |---|---|
-| [START_HERE.md](START_HERE.md) | Setup, what is complete, Demo Day runbook, claims, what you must provide |
+| [START_HERE.md](START_HERE.md) | Setup, Demo Day runbook, what is finished, safe claims, what you must provide |
+| [docs/PROMISES.md](docs/PROMISES.md) | **Each proposal promise, the technology that delivers it** |
 | [CHANGELOG.md](CHANGELOG.md) | What changed, stage by stage |
-| [CONTRACT.md](CONTRACT.md) | Data flow, device protocol, AI model, API and JSON shapes, database, ports and env vars |
-| [PLAN.md](PLAN.md) | Build plan and decisions |
-| [ANALYSIS.md](ANALYSIS.md) | Before/after analysis of the original project |
-| [firmware/CARA_PAKAI_v3.md](firmware/CARA_PAKAI_v3.md) | Flashing firmware v3 and the board checklist (Indonesian) |
-| [dasbor/README.md](dasbor/README.md) | Dashboard pages (Indonesian) |
-| [progress.md](progress.md), [UNTUK_DAUZAN.md](UNTUK_DAUZAN.md) | Team progress log and handover (Indonesian) |
+| [docs/README.md](docs/README.md) | **Index of every other document** (firmware guide, interfaces, plan, analysis, team notes, research) |
 
 ## Configuration
 
 Defaults work out of the box. To change ports, folders, the edge-AI runtime or an optional API token, copy
-`.env.example` to `.env`. All variables are listed in [CONTRACT.md §9](CONTRACT.md).
+`.env.example` to `.env`. All variables are listed in [docs/CONTRACT.md §9](docs/CONTRACT.md).
 
 ## Everything is free and local
 

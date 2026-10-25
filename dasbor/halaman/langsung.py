@@ -43,25 +43,51 @@ for i, t in enumerate(U.TOPO):
         U.kirim_perintah(pilih, "raw", t)
 if c[4].button("SWEEP", width="stretch"): U.kirim_perintah(pilih, "raw", "SWEEP dasbor")
 if c[5].button("STATUS", width="stretch"): U.kirim_perintah(pilih, "raw", "STATUS")
+fitur = ((dev.get("gateway") or {}).get("esp32") or {}).get("features") or []
+if "panel" in fitur:                      # firmware 3.2: satu panel saja antara P dan N
+    c = st.columns([1, 1, 1, 1, 2])
+    for i, p in enumerate("ABCD"):
+        if c[i].button(f"Panel {p}", key=f"p_{p}", width="stretch",
+                       help="Hanya panel ini tersambung (urutan aman, cek Voc satu panel). Lalu tekan SWEEP."):
+            U.kirim_perintah(pilih, "raw", p)
+    c[4].caption("Sapuan per panel: A kiri atas, B kiri bawah, C kanan atas, D kanan bawah.")
 st.caption("⚠️ Pada 4S tegangan array bisa sekitar 88 V DC. Tekan STOP sebelum menyentuh kabel.")
 
 k1, k2, k3 = st.columns([2, 2, 2])
 with k1:
     if st.button("Pilih susunan otomatis (sekali)", type="primary", width="stretch",
                  help="4S → SWEEP → pemilih (AI) → pindah ke pilihan → SWEEP. Pemilih berjalan di gateway laptop "
-                      "(ONNX Runtime); di ESP32 baru setelah firmware v3."):
+                      "(ONNX Runtime); dengan firmware 3.2 keputusan dibuat di ESP32."):
         U.kirim_perintah(pilih, "action", "auto_select")
+    if st.button("Audit keputusan AI", width="stretch",
+                 help="4S → AI memutuskan → sapu juga 2S2P, TCT (dan panel A-D dengan firmware 3.2) → pindah ke pilihan AI. "
+                      "Mengukur berapa daya yang hilang dibanding pilihan terbaik. Hasil di halaman Target vs Bukti."):
+        U.kirim_perintah(pilih, "action", "audit_decision")
+    ev = U.get("/evaluations", device_id=pilih, limit=1)
+    if ev:
+        e = ev[0]
+        st.caption(f"Audit terakhir: AI memilih **{e['chosen']}**, terbaik terukur **{e['best']}**, rugi "
+                   f"{e['loss_pct']:.2f} %" + (f" · MLPE {e['mlpe_w']:.3f} W" if e.get("mlpe_w") else "")
+                   + (" · DEMO" if e["source"] == "demo" else ""))
     U.tombol_stop("stop_langsung")
 with k2:
     with st.expander("Mode otomatis (pemicu perubahan daya)"):
-        jeda = st.number_input("Sapu ulang tiap (s)", 3.0, 600.0, 10.0, 1.0)
+        jeda = st.number_input("Sapu ulang tiap (s)", 3.0, 3600.0, 300.0, 10.0,
+                               help="Tiap sapuan pantau memutus daya sekitar 3 detik. Simulasi: tiap 10 s kalah dari TCT tetap di "
+                                    "semua skenario bayangan bergerak; sekitar 5 menit kira-kira seimbang. Untuk peragaan "
+                                    "boleh dipendekkan.")
         amb = st.number_input("Pilih ulang bila daya berubah > (%)", 5.0, 80.0, 20.0, 1.0)
         tahan = st.number_input("Jeda minimum antar-pindah (s)", 0.0, 3600.0, 30.0, 5.0)
+        stabil = st.checkbox("Aturan stabilitas: kunci TCT saat daya naik-turun (belum divalidasi)", value=False,
+                             help="Bila daya 3 sapuan pantau terakhir berubah-ubah lebih dari 10 %, tetap di TCT dan jangan "
+                                  "menjalankan pemilih. Hasil simulasi dan data terukur di halaman L3 dan stabilitas.")
         if st.button("Mulai mode otomatis", width="stretch"):
-            U.kirim_perintah(pilih, "action", "auto_mode_start", {"interval_s": jeda, "trigger_pct": amb, "hold_s": tahan})
+            U.kirim_perintah(pilih, "action", "auto_mode_start", {"interval_s": jeda, "trigger_pct": amb, "hold_s": tahan,
+                                                                   "stability": {"enabled": stabil, "cv_pct": 10}})
         if st.button("Hentikan mode otomatis", width="stretch"): U.kirim_perintah(pilih, "action", "auto_mode_stop")
-        st.caption("Simulasi (skenario sintetis): pemicu 20 % rata-rata lebih baik dari TCT tetap per jenis bayangan, "
-                   "tetapi lebih buruk pada 10 dari 12 skenario daun. Tiap sapuan memutus daya beberapa detik.")
+        st.caption("Simulasi bayangan bergerak (36 skenario sintetis, dengan biaya sapuan pantau ~3 s): sapuan tiap 10 s "
+                   "kalah dari TCT tetap di semua skenario; tiap 5 menit kira-kira seimbang dengan TCT tetap. Rincian di "
+                   "halaman L3 dan stabilitas. Pada bayangan yang tetap (data lab) pemilih unggul: rugi 0,82 % vs 2,71 %.")
 with k3:
     if demo:
         info_demo = dev["state"].get("demo") or {}
@@ -92,6 +118,23 @@ with k3:
         if st.button("Kirim perintah", width="stretch") and perintah: U.kirim_perintah(pilih, "raw", perintah)
         st.caption("RELAI, UJIRELAI, DAC, CEKVOC 0, SIKLUS dan TAHAN 1 diblokir demi keselamatan: pakai Serial Monitor "
                    "Arduino tanpa panel, dengan gateway dimatikan.")
+
+
+# ---------------- diagnosis AI terakhir (diperbarui tiap 5 detik) ----------------
+@st.fragment(run_every=5.0)
+def diagnosis_terakhir(device_id):
+    try:
+        d = U.get(f"/devices/{device_id}/diagnosis")
+    except (U.ServerMati, RuntimeError):
+        return
+    with st.expander("Diagnosis AI terakhir" + (f" · {d['ref']}" if d else ""), expanded=bool(d)):
+        if not d:
+            st.caption("Belum ada putaran lengkap: jalankan **Audit keputusan AI** di atas, atau scan penuh di halaman Ambil data.")
+        else:
+            U.kartu_diagnosis(d)
+
+
+diagnosis_terakhir(pilih)
 
 
 # ---------------- tampilan yang diperbarui tiap detik ----------------

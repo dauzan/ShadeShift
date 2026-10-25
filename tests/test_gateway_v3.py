@@ -77,7 +77,8 @@ def test_esp32_decision_is_applied_and_cross_checked(tmp_path):
         gw = GatewayV3(settings, FakeV3("V6_paranet65", OURS))
         gw.start()
         try:
-            assert _wait(lambda: gw.esp32) == {"fw": "3.0.0", "id": "a1b2c3d4e5f6", "weights": OURS, "weights_match": True}
+            assert _wait(lambda: gw.esp32) == {"fw": "3.0.0", "id": "a1b2c3d4e5f6", "weights": OURS, "weights_match": True,
+                                              "features": []}
             assert _auto_select(settings, core)["result"] == "TCT"
             rows = _wait(lambda: (lambda r: r if len(r) >= 2 else None)(
                 core.db.query("SELECT decided_by, trigger, applied, choice, model_id, latency_us FROM decisions ORDER BY id")))
@@ -128,3 +129,28 @@ def test_emulator_never_produces_esp32_decisions(tmp_path):
         finally:
             gw.stop()
         assert not core.db.query("SELECT 1 FROM decisions WHERE decided_by='esp32'")
+
+
+def test_esp32_ai_output_reaches_the_web_page_during_monitoring(tmp_path):
+    """Edge AI (CONTRACT §21): while monitoring runs, the selector's result computed ON the ESP32 is stored (decided by
+    esp32, not applied: the consumer view never switches by itself) and shown on the web page with where it ran."""
+    with live_server(tmp_path) as (settings, core):
+        gw = GatewayV3(settings, FakeV3("V3_opak", OURS))
+        gw.start()
+        base = f"{settings.api_url}/api/v1"
+        try:
+            assert _wait(lambda: (core.device_row("esp32-01") or {}).get("gateway", {}).get("esp32"))
+            requests.post(f"{base}/devices/esp32-01/commands", json={"kind": "action", "command": "monitor_start",
+                                                                    "params": {"array_interval_s": 30}}, timeout=10)
+            row = _wait(lambda: core.db.one("SELECT * FROM decisions WHERE decided_by='esp32'"), 60)
+            assert row["trigger"] == "observe" and not row["applied"] and row["latency_us"] == 850
+            assert _wait(lambda: core.db.one("SELECT 1 FROM decisions WHERE decided_by LIKE 'gateway%'"), 30)   # cross-check
+            st = requests.get(f"{base}/twin/state", params={"device_id": "esp32-01"}, timeout=30).json()
+            assert st["ai"]["now"]["on_esp32"] and st["ai"]["now"]["decided_by"] == "esp32" and st["ai"]["day"]["on_esp32"]
+            an = requests.get(f"{base}/analisis", params={"device_id": "esp32-01"}, timeout=30).json()
+            line = next(s for s in an["now"]["lines"] if s.startswith("Saran AI: rangkaian"))      # plain words for a home owner
+            assert f"({row['choice']})" in line
+            assert "berjalan di ESP32" in an["basis"]                                                  # where it was computed
+            assert core.db.one("SELECT COUNT(*) n FROM events WHERE kind='switch'")["n"] == 0              # nothing switched
+        finally:
+            gw.stop()

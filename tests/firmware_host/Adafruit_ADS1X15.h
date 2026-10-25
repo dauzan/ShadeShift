@@ -16,7 +16,10 @@ class Adafruit_ADS1115 {
     double c = std::round(volt / fsr() * 32768.0);
     return (int16_t)std::clamp(c, -32768.0, 32767.0);
   }
-  int16_t readADC_SingleEnded(uint8_t) { double v, i; sim_titik(v, i); return konversi(v * 10000.0 / 340000.0); }
+  int16_t readADC_SingleEnded(uint8_t kanal) {
+    if (kanal == 2) { sim_proses_direktif(); return konversi(hw().cahaya); }   // LDR (firmware 3.2)
+    double v, i; sim_titik(v, i); return konversi(v * 10000.0 / 340000.0);    // A0: array voltage via 330k/10k
+  }
   int16_t readADC_Differential_1_3() { double v, i; sim_titik(v, i); return konversi(i * 0.1); }
   float computeVolts(int16_t c) { return (float)(c * fsr() / 32768.0); }
 };

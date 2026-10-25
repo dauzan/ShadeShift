@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Kondisi Panel Surya</title>
+<style>
+:root{--bg:#ffffff;--fg:#0f172a;--muted:#64748b;--line:#e2e8f0;--soft:#f8fafc;--accent:#1d4ed8;
+  --ok:#15803d;--light:#dc2626;--elec:#1d4ed8;--grey:#94a3b8;--warn:#b45309;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding:12px 16px 24px;display:grid;gap:14px}
+.head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px}
+.head h1{font-size:22px;font-weight:650;margin:0;letter-spacing:-.01em}
+.status{font-size:15px;font-weight:600;margin:2px 0 0}
+.status.ok{color:var(--ok)}.status.problem{color:var(--light)}.status.problem.elec{color:var(--elec)}.status.problem.sky{color:#475569}
+.status.offline,.status.nodata{color:var(--muted)}
+.meta{color:var(--muted);font-size:13px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;
+  border-radius:999px;background:#fef3c7;color:#92400e;margin-left:8px;vertical-align:middle}
+.stage{position:relative;border:1px solid var(--line);border-radius:14px;background:linear-gradient(#ffffff,#f4f6f9);overflow:hidden}
+svg#scene{display:block;width:100%;height:640px;touch-action:none;user-select:none;cursor:grab}
+svg#scene.dragging{cursor:grabbing}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:10px 14px;border-top:1px solid var(--line);background:#fff}
+.tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.roofpick{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;margin-right:6px}
+.roofpick select{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:#fff;color:var(--fg)}
+.tools button,.btn{font:inherit;font-size:13px;border:1px solid var(--line);background:#fff;color:var(--fg);border-radius:8px;
+  padding:6px 10px;cursor:pointer}
+.tools button:hover,.btn:hover{background:var(--soft)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:#1e40af}
+.hint{font-size:12px;color:var(--muted)}
+.legend{font-size:12px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%}
+.rows{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .t{font-weight:600}.row .s{color:var(--muted);font-size:13px}
+.cards{display:grid;gap:12px}
+.card{border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:6px;background:#fff}
+.card.problem{border-left:4px solid var(--light)}.card.problem.elec{border-left-color:var(--elec)}
+.card.problem.grey{border-left-color:var(--grey)}
+.card h2{font-size:16px;margin:0}
+.card dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:4px 0 0;font-size:14px}
+.card dt{color:var(--muted)}.card dd{margin:0}
+.card .note{color:var(--muted);font-size:12px}
+.card button{justify-self:start}
+.panelhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:4px}
+.kv div{background:var(--soft);border-radius:10px;padding:8px 10px}
+.kv b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.kv span{color:var(--muted);font-size:12px}
+#err{color:var(--light);font-size:13px;min-height:1em}
+/* scene */
+.lbl{font-family:var(--font);fill:var(--fg)}
+.lbl.small{fill:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+.pulse{animation:pulse 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+.rawat{margin:14px 0 0;border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px 16px}
+.rawat .top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.rawat h2{margin:0;font-size:15px}.rawat .sum{font-weight:600;margin:4px 0 8px}
+.rawat .sum.segera{color:#b91c1c}.rawat .sum.nanti{color:#b45309}.rawat .sum.ok{color:#15803d}.rawat .sum.belajar{color:var(--muted)}
+.rawat .item{border-top:1px solid var(--line);padding:8px 0}.rawat .item b{display:block}
+.rawat .item span{color:var(--muted);font-size:13px}.rawat .when{float:right;font-size:13px;font-weight:600}
+.rawat .log{color:var(--muted);font-size:13px;margin:6px 0 0}.rawat .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+@media (max-width:700px){svg#scene{height:420px}.hint{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>Susunan panel surya <span id="demo" class="badge" hidden>Mode demo</span></h1>
+      <p id="status" class="status nodata">Memuat data</p>
+    </div>
+    <div id="meta" class="meta"></div>
+  </div>
+  <div class="stage">
+    <svg id="scene" role="img" aria-label="Model tiga dimensi empat panel surya, konektor dan kotak kendali"></svg>
+    <div class="bar">
+      <span class="hint">Seret untuk memutar. Klik panel untuk melihat rinciannya.</span>
+      <span class="legend">
+        <span><i style="background:var(--ok)"></i>Normal</span>
+        <span><i style="background:var(--light)"></i>Cahaya tertutup</span>
+        <span><i style="background:#2b3445"></i>Makin gelap: makin banyak cahaya hilang</span>
+        <span><i style="background:var(--elec)"></i>Masalah listrik</span>
+        <span><i style="background:var(--grey)"></i>Belum ada data</span>
+        <span><i style="background:#facc15"></i>Kilatan cahaya: aliran daya, saat pemantauan aktif</span>
+      </span>
+      <span class="tools">
+        <label class="roofpick">Jenis atap <select id="roof" aria-label="Jenis atap"></select></label>
+        <button id="back" hidden>Kembali ke seluruh panel</button>
+        <button id="behind">Lihat bagian belakang</button>
+        <button id="reset">Atur ulang tampilan</button>
+      </span>
+    </div>
+  </div>
+  <div id="rawat" class="rawat" aria-live="polite"></div>
+  <div id="err" role="status"></div>
+  <div id="cards" class="cards" aria-live="polite"></div>
+  <div id="rows" class="rows"></div>
+</div>
+<script src="/twin/twin.js"></script>
+</body>
+</html>

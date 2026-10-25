@@ -1,4 +1,4 @@
-"""Parsing and validation of uploaded sweep files and of the lab dataset (CONTRACT.md §5.5, §6).
+"""Parsing and validation of uploaded sweep files and of the lab dataset (docs/CONTRACT.md §5.5, §6).
 
 Two formats are accepted:
 - the firmware/logger format (lines starting with '#', header row 'V,I,P'), possibly with several sweep blocks;

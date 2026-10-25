@@ -195,6 +195,32 @@ def transmisi_paranet():
     return (lo + hi) / 2
 
 
+def bayangan_untuk_kondisi(kondisi):
+    """Nama bayangan kembaran yang sesuai dengan kondisi lab (seperti saran di halaman Putar ulang); lainnya tanpa bayangan."""
+    for awal, nama in (("V3_opak", "Opak 1 sel modul A (V3_opak)"), ("V3_paranet", "Paranet modul A (V3)"),
+                       ("V4_paranet", "Paranet modul A+B (V4)"), ("V6_paranet", "Paranet modul A+D diagonal (V6)")):
+        if (kondisi or "").startswith(awal):
+            return nama
+    return "Tanpa bayangan"
+
+
+def kurva_panel_kembaran(m, skala=1.0, bayangan=None, n=201):
+    """Kurva I-V SATU modul (0 = A ... 3 = D) dari kembaran lampu lab, sebagai sapuan firmware: Voc dulu, lalu n titik
+    turun ke 0 V. Dipakai ESP32 tiruan untuk panel tunggal (rekaman lab tidak punya); sapuannya ditandai berasal dari model."""
+    import cocokkan_lampu as kl
+    par = _par(skala)
+    ksh, T = par[6], par[5]
+    p = {**kl.PARAMS[m], "R_sh_ref": kl.PARAMS[m]["R_sh_ref"] * ksh}
+    gs = kl.g_sel(par, bayangan or {})
+    imax = max(g.max() for g in gs) / 1000 * 0.65
+    c = kl.module_curve(p, gs[m], np.linspace(-0.3 * imax, 1.3 * imax, 3000), T)
+    voc = float(c.V_of_I(0.0))
+    V = np.concatenate([[voc], np.linspace(voc, 0.0, n)])
+    I = np.clip(c.I_of_V(V), 0, None)
+    I[0] = 0.0
+    return V, I
+
+
 def daya_harapan(tp):
     """Pmax tiap susunan dari kurva kembaran (V >= 0)."""
     out = {}

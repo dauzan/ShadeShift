@@ -1,4 +1,4 @@
-"""Configuration shared by the server, the gateway and the dashboard (CONTRACT.md §9).
+"""Configuration shared by the server, the gateway and the dashboard (docs/CONTRACT.md §9).
 
 Priority: command-line flags (applied by run.py with Settings.with_overrides) > environment variables >
 a .env file in the project root > the defaults below. Relative paths are resolved against the project root.
@@ -53,6 +53,9 @@ class Settings:
     demo_speed: float
     online_timeout_s: float
     log_level: str
+    monitor_auto: bool = True          # the gateway started by run.py begins monitoring by itself (CONTRACT §19)
+    gemini_api_key: str = ""           # optional (CONTRACT §27): Gemini rewords the analyser box; empty = local sentences only
+    gemini_model: str = "gemini-flash-latest"
 
     def with_overrides(self, **changes):
         """Copy with command-line overrides applied (None values are ignored)."""
@@ -123,6 +126,9 @@ def load(env=None, env_file=None):
         demo_speed=number("SHADESHIFT_DEMO_SPEED", 1.0, float),
         online_timeout_s=number("SHADESHIFT_ONLINE_TIMEOUT_S", 10, float),
         log_level=get("SHADESHIFT_LOG_LEVEL", "INFO").upper(),
+        monitor_auto=get("SHADESHIFT_MONITOR_AUTO", "1").strip().lower() not in ("0", "false", "no", "off"),
+        gemini_api_key=get("SHADESHIFT_GEMINI_API_KEY", "").strip(),
+        gemini_model=get("SHADESHIFT_GEMINI_MODEL", "gemini-flash-latest").strip(),
     )
     _validate(settings)
     return settings

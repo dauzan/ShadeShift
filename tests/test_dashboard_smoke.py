@@ -21,7 +21,8 @@ def _free_port():
 def test_offline_streamlit_config():
     cfg = tomllib.loads((ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8"))
     assert cfg["browser"]["gatherUsageStats"] is False
-    assert cfg["client"]["toolbarMode"] == "viewer"
+    assert cfg["client"]["toolbarMode"] == "minimal"           # no framework menu or branding on the page
+    assert cfg["client"]["showErrorDetails"] == "type"
     assert cfg["server"]["headless"] is True
 
 
